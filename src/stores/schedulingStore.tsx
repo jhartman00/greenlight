@@ -342,7 +342,7 @@ interface SchedulingContextValue {
 
 const SchedulingContext = createContext<SchedulingContextValue | null>(null);
 
-const STORAGE_KEY = 'moviemagic_scheduling';
+const STORAGE_KEY = 'greenlight_scheduling';
 
 export function SchedulingProvider({ children }: { children: React.ReactNode }) {
   const savedStr = localStorage.getItem(STORAGE_KEY);

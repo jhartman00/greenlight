@@ -7,8 +7,9 @@ const config: Config = {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
+  transformIgnorePatterns: ['node_modules/(?!uuid)'],
   transform: {
-    '^.+\\.(ts|tsx)$': [
+    '^.+\\.(ts|tsx|js)$': [
       'ts-jest',
       {
         useESM: true,

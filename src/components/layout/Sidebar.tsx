@@ -49,7 +49,7 @@ export default function Sidebar() {
       <div className="p-4 border-b border-gray-700 flex items-center gap-2">
         <div className="text-amber-500"><FilmSlateIcon /></div>
         <div>
-          <div className="text-gray-100 font-bold text-sm leading-tight">Movie Magic</div>
+          <div className="text-gray-100 font-bold text-sm leading-tight">Greenlight</div>
           <div className="text-gray-500 text-xs">Production Suite</div>
         </div>
       </div>

@@ -227,7 +227,7 @@ interface BudgetingContextValue {
 
 const BudgetingContext = createContext<BudgetingContextValue | null>(null);
 
-const STORAGE_KEY = 'moviemagic_budgeting';
+const STORAGE_KEY = 'greenlight_budgeting';
 
 export function BudgetingProvider({ children }: { children: React.ReactNode }) {
   const savedStr = localStorage.getItem(STORAGE_KEY);
