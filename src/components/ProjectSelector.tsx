@@ -34,7 +34,6 @@ export default function ProjectSelector() {
   const [newName, setNewName] = useState('');
   const [seeding, setSeedingId] = useState<string | null>(null);
   const [deleting, setDeletingId] = useState<string | null>(null);
-  const [migrating, setMigrating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = () => {
@@ -85,19 +84,6 @@ export default function ProjectSelector() {
     }
   };
 
-  const handleMigrate = async () => {
-    setMigrating(true);
-    setError(null);
-    try {
-      await api.migrate();
-      load();
-    } catch {
-      setError('Migration failed.');
-    } finally {
-      setMigrating(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <div className="max-w-4xl mx-auto px-6 py-12">
@@ -122,13 +108,6 @@ export default function ProjectSelector() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-gray-200">Projects</h2>
           <div className="flex gap-3">
-            <button
-              onClick={handleMigrate}
-              disabled={migrating}
-              className="px-3 py-1.5 text-xs rounded border border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-200 transition-colors disabled:opacity-50"
-            >
-              {migrating ? 'Running…' : 'Run Migration'}
-            </button>
             <button
               onClick={() => setCreating(true)}
               className="px-4 py-1.5 text-sm rounded bg-amber-500 text-gray-900 font-semibold hover:bg-amber-400 transition-colors"
@@ -164,7 +143,7 @@ export default function ProjectSelector() {
         ) : projects.length === 0 ? (
           <div className="text-center py-20 text-gray-600">
             <p className="mb-2">No projects yet.</p>
-            <p className="text-sm">Create a new project to get started, or run the migration first if this is your first visit.</p>
+            <p className="text-sm">Create a new project to get started.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">

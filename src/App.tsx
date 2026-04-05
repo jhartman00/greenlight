@@ -97,6 +97,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<ProjectSelector />} />
       <Route path="/project/:projectId/*" element={<ProjectApp />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
