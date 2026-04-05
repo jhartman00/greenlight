@@ -93,7 +93,8 @@ export default function AccountList() {
                   {/* Inline expanded line items */}
                   {isExpanded && (
                     <div className="bg-gray-850 border-b border-gray-700">
-                      <table className="w-full text-xs">
+                      <div className="overflow-x-auto">
+                      <table className="w-full text-xs min-w-[640px]">
                         <thead className="bg-gray-800 border-b border-gray-700">
                           <tr className="text-gray-400 font-semibold">
                             <th className="px-4 py-2 text-left pl-12">Description</th>
@@ -139,6 +140,7 @@ export default function AccountList() {
                           </tr>
                         </tfoot>
                       </table>
+                      </div>
                       <div className="px-4 py-2 border-t border-gray-700 flex justify-end bg-gray-800">
                         <button
                           onClick={(e) => { e.stopPropagation(); handleAddItem(account.id); }}

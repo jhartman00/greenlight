@@ -68,7 +68,7 @@ export default function FringesEditor() {
           {fringes.length === 0 && <div className="text-center text-gray-500 py-12">No fringes defined. Click "+ Add Fringe" or use Presets.</div>}
           {fringes.map(fringe => (
             <div key={fringe.id} className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-3 flex-wrap">
                 <button onClick={() => updateFringe({ ...fringe, enabled: !fringe.enabled })}
                   className={`w-9 h-5 rounded-full relative transition-colors flex-shrink-0 ${fringe.enabled ? 'bg-amber-500' : 'bg-gray-600'}`}>
                   <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${fringe.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
