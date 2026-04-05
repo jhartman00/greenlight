@@ -372,12 +372,12 @@ const budgetProject = {
     payDaysPerWeek: 5, overtimeRate: 1.5, taxRate: 0.23, contingencyPercent: 10,
   },
   fringes: [
-    { id: 'fr-1', name: 'Payroll Tax', type: 'percentage', value: 22, appliesTo: ['1100', '1200', '1300', '1400', '2100', '2200', '2300'], enabled: true },
-    { id: 'fr-2', name: 'SAG Pension & Health', type: 'percentage', value: 19.1, appliesTo: ['1100', '1200'], enabled: true },
-    { id: 'fr-3', name: 'DGA Pension & Health', type: 'percentage', value: 17.5, appliesTo: ['1300'], enabled: true },
-    { id: 'fr-4', name: 'IATSE Benefits', type: 'percentage', value: 14, appliesTo: ['2100', '2200', '2300', '2400', '2500'], enabled: true },
-    { id: 'fr-5', name: 'Workers Comp', type: 'percentage', value: 5.2, appliesTo: ['1100', '1200', '1300', '1400', '2100', '2200', '2300', '2400', '2500', '2600'], enabled: true },
-    { id: 'fr-6', name: 'Vacation/Holiday', type: 'percentage', value: 8.33, cap: 2000, appliesTo: ['2100', '2200', '2300', '2400', '2500'], enabled: true },
+    { id: 'fr-1', name: 'Payroll Tax', type: 'percentage', value: 22, appliesTo: ['a-1100', 'a-1200', 'a-1300', 'a-1400', 'a-2100', 'a-2200', 'a-2300'], enabled: true },
+    { id: 'fr-2', name: 'SAG Pension & Health', type: 'percentage', value: 19.1, appliesTo: ['a-1100', 'a-1200'], enabled: true },
+    { id: 'fr-3', name: 'DGA Pension & Health', type: 'percentage', value: 17.5, appliesTo: ['a-1300'], enabled: true },
+    { id: 'fr-4', name: 'IATSE Benefits', type: 'percentage', value: 14, appliesTo: ['a-2100', 'a-2200', 'a-2300', 'a-2400', 'a-2500'], enabled: true },
+    { id: 'fr-5', name: 'Workers Comp', type: 'percentage', value: 5.2, appliesTo: ['a-1100', 'a-1200', 'a-1300', 'a-1400', 'a-2100', 'a-2200', 'a-2300', 'a-2400', 'a-2500', 'a-2600'], enabled: true },
+    { id: 'fr-6', name: 'Vacation/Holiday', type: 'percentage', value: 8.33, cap: 2000, appliesTo: ['a-2100', 'a-2200', 'a-2300', 'a-2400', 'a-2500'], enabled: true },
   ],
   accountGroups: [
     {
