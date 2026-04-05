@@ -32,7 +32,7 @@ const schedulingNav: NavItem[] = [
 ]
 
 const budgetingNav: NavItem[] = [
-  { to: '/budgeting', label: 'Top Sheet', icon: '📊', end: true },
+  { to: '/budgeting/topsheet', label: 'Top Sheet', icon: '📊', end: true },
   { to: '/budgeting/accounts', label: 'Accounts', icon: '📁' },
   { to: '/budgeting/globals', label: 'Globals', icon: '⚙️' },
   { to: '/budgeting/fringes', label: 'Fringes', icon: '📐' },
