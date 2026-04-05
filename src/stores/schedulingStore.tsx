@@ -360,6 +360,9 @@ export function SchedulingProvider({ children, projectId }: { children: React.Re
       const data = row.scheduling_data;
       if (data && data.breakdowns) {
         dispatch({ type: 'SET_PROJECT', payload: data });
+      } else {
+        const now = new Date().toISOString();
+        dispatch({ type: 'SET_PROJECT', payload: { id: projectId, name: row.name, elements: [], breakdowns: [], stripBoard: [], createdAt: row.created_at ?? now, updatedAt: now } });
       }
     }).finally(() => {
       isLoadingRef.current = false;

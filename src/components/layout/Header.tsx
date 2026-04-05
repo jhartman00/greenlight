@@ -8,8 +8,8 @@ export default function Header() {
   const { state: schedState, dispatch: schedDispatch } = useScheduling();
   const { state: budgetState } = useBudgeting();
 
-  const isScheduling = location.pathname.startsWith('/scheduling');
-  const isBudgeting = location.pathname.startsWith('/budgeting');
+  const isScheduling = location.pathname.includes('/scheduling');
+  const isBudgeting = location.pathname.includes('/budgeting');
 
   const projectName = isScheduling ? schedState.project?.name : budgetState.project?.name;
 

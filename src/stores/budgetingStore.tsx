@@ -245,6 +245,9 @@ export function BudgetingProvider({ children, projectId }: { children: React.Rea
       const data = row.budgeting_data;
       if (data && data.accountGroups) {
         dispatch({ type: 'SET_PROJECT', payload: data });
+      } else {
+        const now = new Date().toISOString();
+        dispatch({ type: 'SET_PROJECT', payload: { id: projectId, name: row.name, globals: { currency: 'USD', currencySymbol: '$', prepWeeks: 4, shootWeeks: 8, wrapWeeks: 2, payDaysPerWeek: 5, overtimeRate: 1.5, taxRate: 0, contingencyPercent: 10 }, fringes: [], accountGroups: [], grandTotal: 0, contingency: 0, totalWithContingency: 0, createdAt: row.created_at ?? now, updatedAt: now } });
       }
     }).finally(() => {
       isLoadingRef.current = false;
