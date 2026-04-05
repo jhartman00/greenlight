@@ -12,7 +12,7 @@ interface StripProps {
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
-export default function Strip({ id, breakdown, elements, onSelect, onContextMenu }: StripProps) {
+export default function Strip({ id, breakdown, onSelect, onContextMenu }: StripProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
   const style: React.CSSProperties = {
