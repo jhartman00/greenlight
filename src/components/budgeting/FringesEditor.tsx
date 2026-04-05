@@ -70,8 +70,8 @@ export default function FringesEditor() {
             <div key={fringe.id} className="bg-gray-800 rounded-lg border border-gray-700 p-4">
               <div className="flex items-center gap-3 mb-3">
                 <button onClick={() => updateFringe({ ...fringe, enabled: !fringe.enabled })}
-                  className={`w-10 h-5 rounded-full relative transition-colors flex-shrink-0 ${fringe.enabled ? 'bg-amber-500' : 'bg-gray-600'}`}>
-                  <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${fringe.enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  className={`w-9 h-5 rounded-full relative transition-colors flex-shrink-0 ${fringe.enabled ? 'bg-amber-500' : 'bg-gray-600'}`}>
+                  <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${fringe.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
                 </button>
                 <input value={fringe.name} onChange={e => updateFringe({ ...fringe, name: e.target.value })}
                   className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500" />
