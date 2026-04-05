@@ -13,6 +13,7 @@ import ElementManager from './components/scheduling/ElementManager';
 import DayOutOfDays from './components/scheduling/DayOutOfDays';
 import CalendarView from './components/scheduling/CalendarView';
 import BreakdownSheetPanel from './components/scheduling/BreakdownSheet';
+import CastManager from './components/scheduling/CastManager';
 import ExtrasManager from './components/scheduling/ExtrasManager';
 import WardrobeManager from './components/scheduling/WardrobeManager';
 import SetsManager from './components/scheduling/SetsManager';
@@ -67,6 +68,7 @@ function ProjectApp() {
                     <Route path="scheduling/stripboard" element={<StripBoardView />} />
                     <Route path="scheduling/breakdowns" element={<BreakdownList />} />
                     <Route path="scheduling/elements" element={<ElementManager />} />
+                    <Route path="scheduling/cast" element={<CastManager />} />
                     <Route path="scheduling/extras" element={<ExtrasManager />} />
                     <Route path="scheduling/wardrobe" element={<WardrobeManager />} />
                     <Route path="scheduling/sets" element={<SetsManager />} />

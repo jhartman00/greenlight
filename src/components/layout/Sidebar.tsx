@@ -22,6 +22,7 @@ export default function Sidebar() {
     { to: `${base}/scheduling/stripboard`, label: 'Strip Board' },
     { to: `${base}/scheduling/breakdowns`, label: 'Breakdowns' },
     { to: `${base}/scheduling/elements`, label: 'Elements' },
+    { to: `${base}/scheduling/cast`, label: 'Cast' },
     { to: `${base}/scheduling/extras`, label: 'Extras' },
     { to: `${base}/scheduling/wardrobe`, label: 'Wardrobe' },
     { to: `${base}/scheduling/sets`, label: 'Sets' },

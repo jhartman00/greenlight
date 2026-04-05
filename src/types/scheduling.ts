@@ -167,6 +167,29 @@ export interface ProductionSet {
   notes?: string;
 }
 
+// ── Cast Manager ─────────────────────────────────────────────────────────────
+
+export interface CastMember {
+  id: string;
+  elementId: string;
+  role: string;
+  actor?: string;
+  status: 'Uncast' | 'Shortlisted' | 'Offered' | 'Confirmed' | 'Wrapped';
+  category: 'Lead' | 'Supporting' | 'Day Player' | 'Cameo' | 'Stunt Double' | 'Stand-In';
+  union: 'SAG-AFTRA' | 'Non-Union' | 'Taft-Hartley' | 'Fi-Core';
+  dailyRate?: number;
+  weeklyRate?: number;
+  guaranteedDays?: number;
+  startDate?: string;
+  endDate?: string;
+  agent?: string;
+  agentPhone?: string;
+  agentEmail?: string;
+  notes?: string;
+  fittingDates?: string[];
+  rehearsalDates?: string[];
+}
+
 // ── Project ─────────────────────────────────────────────────────────────────
 
 export interface SchedulingProject {
@@ -185,6 +208,7 @@ export interface SchedulingProject {
   scriptChanges?: ScriptChange[];
   lockedPages?: LockedPage[];
   sets?: ProductionSet[];
+  castMembers?: CastMember[];
   createdAt: string;
   updatedAt: string;
 }

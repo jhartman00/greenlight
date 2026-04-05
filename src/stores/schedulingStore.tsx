@@ -6,7 +6,7 @@ import type {
   ExtraGroup, SceneExtras, ExtrasVoucher,
   CostumeItem, SceneCostume,
   ScriptRevision, ScriptChange, LockedPage,
-  ProductionSet,
+  ProductionSet, CastMember,
 } from '../types/scheduling';
 import { sampleSchedulingProject } from '../utils/sampleData';
 
@@ -59,7 +59,11 @@ export type SchedulingAction =
   // Sets
   | { type: 'ADD_SET'; payload: ProductionSet }
   | { type: 'UPDATE_SET'; payload: ProductionSet }
-  | { type: 'DELETE_SET'; payload: string };
+  | { type: 'DELETE_SET'; payload: string }
+  // Cast
+  | { type: 'ADD_CAST_MEMBER'; payload: CastMember }
+  | { type: 'UPDATE_CAST_MEMBER'; payload: CastMember }
+  | { type: 'DELETE_CAST_MEMBER'; payload: string };
 
 export type { SchedulingState };
 
@@ -329,6 +333,20 @@ export function schedulingReducer(state: SchedulingState, action: SchedulingActi
     case 'DELETE_SET': {
       const project = state.project!;
       return { ...state, project: { ...project, sets: (project.sets ?? []).filter(s => s.id !== action.payload), updatedAt: now } };
+    }
+
+    // ── Cast ──────────────────────────────────────────────────────────────
+    case 'ADD_CAST_MEMBER': {
+      const project = state.project!;
+      return { ...state, project: { ...project, castMembers: [...(project.castMembers ?? []), action.payload], updatedAt: now } };
+    }
+    case 'UPDATE_CAST_MEMBER': {
+      const project = state.project!;
+      return { ...state, project: { ...project, castMembers: (project.castMembers ?? []).map(c => c.id === action.payload.id ? action.payload : c), updatedAt: now } };
+    }
+    case 'DELETE_CAST_MEMBER': {
+      const project = state.project!;
+      return { ...state, project: { ...project, castMembers: (project.castMembers ?? []).filter(c => c.id !== action.payload), updatedAt: now } };
     }
 
     default:

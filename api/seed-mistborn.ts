@@ -492,6 +492,24 @@ const budgetProject = {
   updatedAt: now,
 };
 
+// ── CAST MEMBERS ─────────────────────────────────────────────────────────────
+
+const castMembers = [
+  { id: 'cast-vin', elementId: 'el-vin', role: 'Vin', actor: '', status: 'Uncast', category: 'Lead', union: 'SAG-AFTRA', weeklyRate: 125000, guaranteedDays: 45, notes: 'Requires 6 weeks wirework training pre-production. Age range 17-22. Must do own stunts where possible.', fittingDates: ['2026-05-15', '2026-05-20', '2026-05-25'], rehearsalDates: ['2026-05-18', '2026-05-22', '2026-05-26', '2026-05-28'] },
+  { id: 'cast-kelsier', elementId: 'el-kelsier', role: 'Kelsier', actor: '', status: 'Uncast', category: 'Lead', union: 'SAG-AFTRA', weeklyRate: 187500, guaranteedDays: 35, notes: 'Charismatic, athletic. Heavy wirework. Hathsin arm scars every day.', fittingDates: ['2026-05-15', '2026-05-22'], rehearsalDates: ['2026-05-18', '2026-05-26'] },
+  { id: 'cast-elend', elementId: 'el-elend', role: 'Elend Venture', actor: '', status: 'Uncast', category: 'Supporting', union: 'SAG-AFTRA', weeklyRate: 35000, guaranteedDays: 15, notes: 'Bookish, aristocratic. Scenes 7, 10, 11, 15.', fittingDates: ['2026-05-20'], rehearsalDates: ['2026-05-22'] },
+  { id: 'cast-sazed', elementId: 'el-sazed', role: 'Sazed', actor: '', status: 'Uncast', category: 'Supporting', union: 'SAG-AFTRA', weeklyRate: 25000, guaranteedDays: 10, notes: 'Tall, bald. Prosthetic ears. Terrisman accent work needed.', fittingDates: ['2026-05-18'], rehearsalDates: ['2026-05-22'] },
+  { id: 'cast-breeze', elementId: 'el-breeze', role: 'Breeze', actor: '', status: 'Uncast', category: 'Supporting', union: 'SAG-AFTRA', dailyRate: 5000, guaranteedDays: 8, notes: 'Distinguished, well-dressed. Soother — subtle performance.' },
+  { id: 'cast-ham', elementId: 'el-ham', role: 'Ham', actor: '', status: 'Uncast', category: 'Supporting', union: 'SAG-AFTRA', dailyRate: 5000, guaranteedDays: 6, notes: 'Muscular build required. Philosophical delivery.' },
+  { id: 'cast-clubs', elementId: 'el-clubs', role: 'Clubs', actor: '', status: 'Uncast', category: 'Supporting', union: 'SAG-AFTRA', dailyRate: 4000, guaranteedDays: 5, notes: 'Older, grumpy. Carpenter hands.' },
+  { id: 'cast-dockson', elementId: 'el-dockson', role: 'Dockson', actor: '', status: 'Uncast', category: 'Supporting', union: 'SAG-AFTRA', dailyRate: 4000, guaranteedDays: 6, notes: 'Kelsier right hand. Organized, practical.' },
+  { id: 'cast-marsh', elementId: 'el-marsh', role: 'Marsh', actor: '', status: 'Uncast', category: 'Supporting', union: 'SAG-AFTRA', dailyRate: 5000, guaranteedDays: 4, notes: 'Stern. Becomes Steel Inquisitor — needs to work with prosthetics team.' },
+  { id: 'cast-lordruler', elementId: 'el-lordruler', role: 'Lord Ruler', actor: '', status: 'Uncast', category: 'Supporting', union: 'SAG-AFTRA', weeklyRate: 50000, guaranteedDays: 8, notes: 'Commanding presence. Ages rapidly in climax — prosthetic/CG work. Bare feet deliberate.', fittingDates: ['2026-05-20'], rehearsalDates: ['2026-05-28'] },
+  { id: 'cast-inquisitor', elementId: 'el-inquisitor1', role: 'Steel Inquisitor', actor: '', status: 'Uncast', category: 'Day Player', union: 'SAG-AFTRA', dailyRate: 3500, guaranteedDays: 8, notes: '2hr prosthetic application per day. Spike eyes. Heavy stunt work.' },
+  { id: 'cast-straff', elementId: 'el-straff', role: 'Straff Venture', actor: '', status: 'Uncast', category: 'Day Player', union: 'SAG-AFTRA', dailyRate: 3000, guaranteedDays: 2, notes: 'Elend father. Cruel nobleman. Ball scene only.' },
+  { id: 'cast-shan', elementId: 'el-shan', role: 'Shan Elariel', actor: '', status: 'Uncast', category: 'Day Player', union: 'SAG-AFTRA', dailyRate: 4000, guaranteedDays: 6, notes: 'Mistborn antagonist. Major fight scene (Sc. 12). Wirework required.', fittingDates: ['2026-05-20'], rehearsalDates: ['2026-05-26'] },
+];
+
 // ── SCHEDULING PROJECT ──────────────────────────────────────────────────────
 
 const schedulingProject = {
@@ -510,6 +528,7 @@ const schedulingProject = {
   scriptChanges,
   lockedPages,
   sets,
+  castMembers,
   createdAt: now,
   updatedAt: now,
 };
