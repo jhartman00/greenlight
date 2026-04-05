@@ -7,7 +7,7 @@ import { getStripColor } from '../../utils/colors';
 interface StripProps {
   id: string;
   breakdown: BreakdownSheet;
-  elements: Element[];
+  elements?: Element[];
   onSelect: () => void;
   onContextMenu: (e: React.MouseEvent) => void;
 }

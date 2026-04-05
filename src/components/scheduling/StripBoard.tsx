@@ -211,7 +211,6 @@ export default function StripBoard() {
                     key={item.id}
                     id={item.id}
                     breakdown={breakdown}
-                    elements={project.elements}
                     onSelect={() => dispatch({ type: 'SET_SELECTED_BREAKDOWN', payload: breakdown.id })}
                     onContextMenu={(e) => handleContextMenu(e, item.id, index)}
                   />
