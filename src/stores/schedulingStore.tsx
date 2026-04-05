@@ -60,7 +60,9 @@ export type SchedulingAction =
   | { type: 'UPDATE_SET'; payload: ProductionSet }
   | { type: 'DELETE_SET'; payload: string };
 
-function schedulingReducer(state: SchedulingState, action: SchedulingAction): SchedulingState {
+export type { SchedulingState };
+
+export function schedulingReducer(state: SchedulingState, action: SchedulingAction): SchedulingState {
   if (!state.project && action.type !== 'SET_PROJECT' && action.type !== 'LOAD_SAMPLE') {
     return state;
   }

@@ -68,7 +68,9 @@ function recalculate(project: BudgetProject): BudgetProject {
   };
 }
 
-function budgetingReducer(state: BudgetingState, action: BudgetingAction): BudgetingState {
+export type { BudgetingState };
+
+export function budgetingReducer(state: BudgetingState, action: BudgetingAction): BudgetingState {
   if (!state.project && action.type !== 'SET_PROJECT' && action.type !== 'LOAD_SAMPLE') {
     return state;
   }
