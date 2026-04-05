@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useScheduling } from '../../stores/schedulingStore';
-import type { ScriptRevision, ScriptChange, LockedPage, RevisionColor } from '../../types/scheduling';
+import type { ScriptRevision, ScriptChange, LockedPage, RevisionColor, BreakdownSheet } from '../../types/scheduling';
 
-type Tab = 'revisions' | 'changes' | 'pages';
+type Tab = 'script' | 'revisions' | 'changes' | 'pages';
 
 const REVISION_COLORS: Record<RevisionColor, string> = {
   'White': '#FFFFFF',
@@ -36,7 +36,7 @@ const CHANGE_TYPE_COLORS: Record<ScriptChange['changeType'], string> = {
 
 export default function ScriptManager() {
   const { state, dispatch } = useScheduling();
-  const [activeTab, setActiveTab] = useState<Tab>('revisions');
+  const [activeTab, setActiveTab] = useState<Tab>('script');
   const [showAddRevision, setShowAddRevision] = useState(false);
   const [showAddChange, setShowAddChange] = useState(false);
   const [filterRevisionId, setFilterRevisionId] = useState<string>('all');
@@ -51,6 +51,7 @@ export default function ScriptManager() {
   const revisions = (project.revisions ?? []).sort((a, b) => a.revisionNumber - b.revisionNumber);
   const scriptChanges = project.scriptChanges ?? [];
   const lockedPages = project.lockedPages ?? [];
+  const breakdowns = (project.breakdowns ?? []).sort((a, b) => a.scriptPage - b.scriptPage);
 
   const currentRevision = revisions.find(r => !r.isLocked) ?? revisions[revisions.length - 1];
 
@@ -157,12 +158,22 @@ export default function ScriptManager() {
       </div>
 
       <div className="flex border-b border-gray-700 px-4 flex-shrink-0">
-        <button className={tabClass('revisions')} onClick={() => setActiveTab('revisions')}>Revision History</button>
-        <button className={tabClass('changes')} onClick={() => setActiveTab('changes')}>Change Log</button>
-        <button className={tabClass('pages')} onClick={() => setActiveTab('pages')}>Pages Affected</button>
+        <button className={tabClass('script')} onClick={() => setActiveTab('script')}>Script</button>
+        <button className={tabClass('revisions')} onClick={() => setActiveTab('revisions')}>Revisions</button>
+        <button className={tabClass('changes')} onClick={() => setActiveTab('changes')}>Changes</button>
+        <button className={tabClass('pages')} onClick={() => setActiveTab('pages')}>Pages</button>
       </div>
 
       <div className="flex-1 overflow-auto p-4">
+        {activeTab === 'script' && (
+          <ScriptView
+            breakdowns={breakdowns}
+            revisions={revisions}
+            scriptChanges={scriptChanges}
+            lockedPages={lockedPages}
+          />
+        )}
+
         {activeTab === 'revisions' && (
           <RevisionHistory
             revisions={revisions}
@@ -209,6 +220,196 @@ export default function ScriptManager() {
           onClose={() => { setShowAddChange(false); setEditingChange(null); }}
         />
       )}
+    </div>
+  );
+}
+
+function ScriptView({ breakdowns, revisions, scriptChanges, lockedPages }: {
+  breakdowns: BreakdownSheet[];
+  revisions: ScriptRevision[];
+  scriptChanges: ScriptChange[];
+  lockedPages: LockedPage[];
+}) {
+  const [showChanges, setShowChanges] = useState(false);
+
+  const currentRevision = revisions.find(r => !r.isLocked) ?? revisions[revisions.length - 1];
+
+  // For a given scene, find the highest-numbered revision with a change touching it
+  const getSceneRevisionColor = (sceneNumber: string): string => {
+    const changesForScene = scriptChanges.filter(c => c.sceneNumber === sceneNumber);
+    if (changesForScene.length === 0) return REVISION_COLORS['White'];
+    let highestRev: ScriptRevision | undefined;
+    for (const change of changesForScene) {
+      const rev = revisions.find(r => r.id === change.revisionId);
+      if (rev && (!highestRev || rev.revisionNumber > highestRev.revisionNumber)) {
+        highestRev = rev;
+      }
+    }
+    return highestRev ? REVISION_COLORS[highestRev.color] : REVISION_COLORS['White'];
+  };
+
+  const isPageLocked = (scriptPage: number, pageCount: string): boolean => {
+    const pageCountNum = parseFloat(pageCount) || 1;
+    const endPage = scriptPage + pageCountNum;
+    return lockedPages.some(lp => {
+      const lpNum = parseFloat(lp.pageNumber);
+      return !isNaN(lpNum) && lpNum >= scriptPage && lpNum < endPage;
+    });
+  };
+
+  const formatSlugLine = (bd: BreakdownSheet): string => {
+    return `${bd.intExt}. ${bd.setName.toUpperCase()} — ${bd.dayNight}`;
+  };
+
+  if (breakdowns.length === 0) {
+    return <div className="text-center py-12 text-gray-500">No scenes in breakdown yet. Add scenes in the Breakdown tab.</div>;
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      {/* Current revision banner */}
+      {currentRevision && (
+        <div
+          className="flex items-center gap-3 px-4 py-2.5 rounded mb-5 border border-gray-700"
+          style={{ backgroundColor: `${REVISION_COLORS[currentRevision.color]}18` }}
+        >
+          <div
+            className="w-5 h-5 rounded border border-gray-500 flex-shrink-0"
+            style={{ backgroundColor: REVISION_COLORS[currentRevision.color] }}
+          />
+          <div className="flex-1">
+            <span className="text-gray-200 text-sm font-semibold">
+              Current Revision: {currentRevision.revisionNumber} — {currentRevision.color}
+            </span>
+            <span className="text-gray-400 text-xs ml-3">{currentRevision.date}</span>
+            {currentRevision.author && (
+              <span className="text-gray-500 text-xs ml-2">by {currentRevision.author}</span>
+            )}
+          </div>
+          {currentRevision.isLocked && (
+            <span className="text-xs bg-red-900 text-red-200 px-1.5 py-0.5 rounded font-semibold">🔒 Locked</span>
+          )}
+          {/* Toggle */}
+          <label className="flex items-center gap-2 cursor-pointer ml-4">
+            <span className="text-xs text-gray-400">Show Changes</span>
+            <button
+              onClick={() => setShowChanges(v => !v)}
+              className={`relative inline-flex items-center w-9 h-5 rounded-full transition-colors ${showChanges ? 'bg-amber-500' : 'bg-gray-600'}`}
+            >
+              <span className={`inline-block w-3.5 h-3.5 bg-white rounded-full shadow transition-transform ${showChanges ? 'translate-x-4' : 'translate-x-1'}`} />
+            </button>
+          </label>
+        </div>
+      )}
+
+      {/* Scene list */}
+      <div className="space-y-3">
+        {breakdowns.map(bd => {
+          const revColor = getSceneRevisionColor(bd.sceneNumber);
+          const locked = isPageLocked(bd.scriptPage, bd.pageCount);
+          const sceneChanges = scriptChanges.filter(c => c.sceneNumber === bd.sceneNumber);
+
+          return (
+            <div key={bd.id} className="bg-gray-800 rounded border border-gray-700 overflow-hidden">
+              <div className="flex items-stretch">
+                {/* Left color bar = revision color */}
+                <div className="w-1.5 flex-shrink-0" style={{ backgroundColor: revColor }} />
+
+                <div className="flex-1 px-4 py-3 font-mono">
+                  {/* Scene header row */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs bg-gray-700 text-amber-300 font-bold px-1.5 py-0.5 rounded border border-gray-600">
+                      {bd.sceneNumber}
+                    </span>
+                    <span className="text-gray-100 font-bold text-sm tracking-wide uppercase flex-1">
+                      {formatSlugLine(bd)}
+                    </span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className="text-xs text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">
+                        p.{bd.scriptPage} · {bd.pageCount} pg
+                      </span>
+                      {locked && <span title="Page locked">🔒</span>}
+                    </div>
+                  </div>
+
+                  {/* Action/description */}
+                  {bd.description && (
+                    <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{bd.description}</p>
+                  )}
+
+                  {/* Scene notes */}
+                  {bd.notes && (
+                    <p className="text-gray-500 text-xs italic mt-1.5">{bd.notes}</p>
+                  )}
+
+                  {/* Elements */}
+                  {bd.elements.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {bd.elements.map(el => (
+                        <span key={el} className="text-xs bg-gray-700 text-gray-400 border border-gray-600 rounded px-1.5 py-0.5">{el}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Inline changes */}
+                  {showChanges && sceneChanges.length > 0 && (
+                    <div className="mt-3 space-y-1.5 border-t border-gray-700 pt-3">
+                      {sceneChanges.map(change => {
+                        const rev = revisions.find(r => r.id === change.revisionId);
+                        const revColor2 = rev ? REVISION_COLORS[rev.color] : '#888';
+                        const borderClass =
+                          change.changeType === 'Added' ? 'border-green-500' :
+                          change.changeType === 'Deleted' ? 'border-red-500' :
+                          change.changeType === 'Moved' ? 'border-blue-500' :
+                          'border-amber-400';
+                        const bgClass =
+                          change.changeType === 'Added' ? 'bg-green-900/20' :
+                          change.changeType === 'Deleted' ? 'bg-red-900/20' :
+                          change.changeType === 'Moved' ? 'bg-blue-900/20' :
+                          'bg-amber-900/20';
+
+                        return (
+                          <div key={change.id} className={`rounded border-l-2 pl-2.5 py-1.5 pr-2 ${borderClass} ${bgClass}`}>
+                            <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                              {/* Revision color dot */}
+                              <span
+                                className="w-2.5 h-2.5 rounded-full border border-gray-500 flex-shrink-0 inline-block"
+                                style={{ backgroundColor: revColor2 }}
+                              />
+                              {rev && (
+                                <span className="text-xs text-gray-400">Rev {rev.revisionNumber}</span>
+                              )}
+                              <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${CHANGE_TYPE_COLORS[change.changeType]}`}>
+                                {change.changeType}
+                              </span>
+                              {change.impactedDepartments.map(dept => (
+                                <span key={dept} className="text-xs bg-amber-500/10 text-amber-300 border border-amber-500/20 rounded px-1 py-0.5">{dept}</span>
+                              ))}
+                            </div>
+                            <p className="text-xs text-gray-300">{change.description}</p>
+                            {change.changeType === 'Deleted' && change.oldContent && (
+                              <p className="text-xs text-red-400 line-through mt-0.5">{change.oldContent}</p>
+                            )}
+                            {change.changeType === 'Added' && change.newContent && (
+                              <p className="text-xs text-green-300 mt-0.5">{change.newContent}</p>
+                            )}
+                            {change.changeType === 'Modified' && (change.oldContent || change.newContent) && (
+                              <div className="mt-0.5 space-y-0.5">
+                                {change.oldContent && <p className="text-xs text-red-400 line-through">{change.oldContent}</p>}
+                                {change.newContent && <p className="text-xs text-green-300">{change.newContent}</p>}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
