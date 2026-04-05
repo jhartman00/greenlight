@@ -11,15 +11,20 @@ const FilmSlateIcon = () => (
 
 const schedulingLinks = [
   { to: '/scheduling/stripboard', label: 'Strip Board' },
-  { to: '/scheduling/breakdowns', label: 'Breakdown List' },
-  { to: '/scheduling/elements', label: 'Element Manager' },
+  { to: '/scheduling/breakdowns', label: 'Breakdowns' },
+  { to: '/scheduling/elements', label: 'Elements' },
+  { to: '/scheduling/extras', label: 'Extras' },
+  { to: '/scheduling/wardrobe', label: 'Wardrobe' },
+  { to: '/scheduling/sets', label: 'Sets' },
+  { to: '/scheduling/script', label: 'Script' },
   { to: '/scheduling/dood', label: 'Day Out of Days' },
-  { to: '/scheduling/calendar', label: 'Calendar View' },
+  { to: '/scheduling/calendar', label: 'Calendar' },
+  { to: '/scheduling/reports', label: 'Reports' },
 ];
 
 const budgetingLinks = [
   { to: '/budgeting/topsheet', label: 'Top Sheet' },
-  { to: '/budgeting/accounts', label: 'Account Detail' },
+  { to: '/budgeting/accounts', label: 'Accounts' },
   { to: '/budgeting/globals', label: 'Globals' },
   { to: '/budgeting/fringes', label: 'Fringes' },
   { to: '/budgeting/actuals', label: 'Actuals Tracker' },

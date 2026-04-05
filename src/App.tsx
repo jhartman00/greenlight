@@ -12,9 +12,14 @@ import ElementManager from './components/scheduling/ElementManager';
 import DayOutOfDays from './components/scheduling/DayOutOfDays';
 import CalendarView from './components/scheduling/CalendarView';
 import BreakdownSheetPanel from './components/scheduling/BreakdownSheet';
+import ExtrasManager from './components/scheduling/ExtrasManager';
+import WardrobeManager from './components/scheduling/WardrobeManager';
+import SetsManager from './components/scheduling/SetsManager';
+import ScriptManager from './components/scheduling/ScriptManager';
+import SchedulingReports from './components/scheduling/Reports';
 
 import TopSheet from './components/budgeting/TopSheet';
-import AccountDetail from './components/budgeting/AccountDetail';
+import AccountList from './components/budgeting/AccountList';
 import GlobalsEditor from './components/budgeting/GlobalsEditor';
 import FringesEditor from './components/budgeting/FringesEditor';
 import ActualsTracker from './components/budgeting/ActualsTracker';
@@ -54,10 +59,15 @@ function AppContent() {
             <Route path="/scheduling/stripboard" element={<StripBoardView />} />
             <Route path="/scheduling/breakdowns" element={<BreakdownList />} />
             <Route path="/scheduling/elements" element={<ElementManager />} />
+            <Route path="/scheduling/extras" element={<ExtrasManager />} />
+            <Route path="/scheduling/wardrobe" element={<WardrobeManager />} />
+            <Route path="/scheduling/sets" element={<SetsManager />} />
+            <Route path="/scheduling/script" element={<ScriptManager />} />
             <Route path="/scheduling/dood" element={<DayOutOfDays />} />
             <Route path="/scheduling/calendar" element={<CalendarView />} />
+            <Route path="/scheduling/reports" element={<SchedulingReports />} />
             <Route path="/budgeting/topsheet" element={<TopSheet />} />
-            <Route path="/budgeting/accounts" element={<AccountDetail />} />
+            <Route path="/budgeting/accounts" element={<AccountList />} />
             <Route path="/budgeting/globals" element={<GlobalsEditor />} />
             <Route path="/budgeting/fringes" element={<FringesEditor />} />
             <Route path="/budgeting/actuals" element={<ActualsTracker />} />

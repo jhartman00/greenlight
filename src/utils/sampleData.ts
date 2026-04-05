@@ -1,5 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { SchedulingProject, Element, BreakdownSheet, StripBoardItem } from '../types/scheduling';
+import type {
+  SchedulingProject, Element, BreakdownSheet, StripBoardItem,
+  ExtraGroup, SceneExtras, ExtrasVoucher,
+  CostumeItem, SceneCostume,
+  ScriptRevision, ScriptChange, LockedPage,
+  ProductionSet,
+} from '../types/scheduling';
 import type { BudgetProject, BudgetGlobals, Fringe, AccountGroup, Account, LineItem } from '../types/budgeting';
 
 // Pre-generated element IDs
@@ -263,12 +269,374 @@ const stripBoard: StripBoardItem[] = [
   { type: 'scene', id: uuidv4(), breakdownId: BD20 },
 ];
 
+// ── Extras Manager sample data ───────────────────────────────────────────────
+
+const EG_RESTAURANT = uuidv4();
+const EG_HOSPITAL = uuidv4();
+const EG_STREET = uuidv4();
+const EG_POLICE = uuidv4();
+
+const extraGroups: ExtraGroup[] = [
+  { id: EG_RESTAURANT, name: 'Restaurant Patrons', category: 'Non-Union', defaultRate: 182, defaultOvertimeRate: 273, notes: 'Business casual attire required' },
+  { id: EG_HOSPITAL, name: 'Hospital Visitors', category: 'Non-Union', defaultRate: 182, defaultOvertimeRate: 273, notes: 'Civilian clothes, no medical uniforms' },
+  { id: EG_STREET, name: 'Street Pedestrians', category: 'SAG', defaultRate: 236, defaultOvertimeRate: 354, notes: 'Varied street clothing' },
+  { id: EG_POLICE, name: 'Police Officers', category: 'Special Ability', defaultRate: 312, defaultOvertimeRate: 468, notes: 'Must have own uniform or use provided costumes' },
+];
+
+const sceneExtras: SceneExtras[] = [
+  {
+    sceneId: BD1,
+    groups: [{ groupId: EG_HOSPITAL, headcount: 8, callTime: '6:00 AM', wrapTime: '4:00 PM', wardrobe: 'Civilian clothes', notes: 'Waiting room background' }],
+  },
+  {
+    sceneId: BD6,
+    groups: [{ groupId: EG_STREET, headcount: 15, callTime: '7:00 AM', wrapTime: '5:00 PM', wardrobe: 'Business casual / casual pedestrian mix' }],
+  },
+  {
+    sceneId: BD13,
+    groups: [
+      { groupId: EG_RESTAURANT, headcount: 12, callTime: '7:30 AM', wrapTime: '6:00 PM', wardrobe: 'Business formal', notes: 'Board members — seated at conference table' },
+      { groupId: EG_POLICE, headcount: 2, callTime: '2:00 PM', wrapTime: '6:00 PM', notes: 'Arrival at end of scene' },
+    ],
+  },
+  {
+    sceneId: BD14,
+    groups: [{ groupId: EG_POLICE, headcount: 4, callTime: '8:00 AM', wrapTime: '4:00 PM', wardrobe: 'Full uniform', notes: 'Arrest scene exterior' }],
+  },
+];
+
+const extrasVouchers: ExtrasVoucher[] = [
+  { id: uuidv4(), date: '2026-03-01', sceneId: BD1, groupId: EG_HOSPITAL, name: 'Maria Gonzalez', ssn_last4: '4521', callTime: '6:00 AM', wrapTime: '4:00 PM', hoursWorked: 10, mealPenalty: false, rate: 182, totalPay: 182 },
+  { id: uuidv4(), date: '2026-03-01', sceneId: BD1, groupId: EG_HOSPITAL, name: 'Tom Ashby', ssn_last4: '7732', callTime: '6:00 AM', wrapTime: '4:30 PM', hoursWorked: 10.5, mealPenalty: true, rate: 182, totalPay: 212 },
+  { id: uuidv4(), date: '2026-03-01', sceneId: BD1, groupId: EG_HOSPITAL, name: 'Priya Nair', callTime: '6:00 AM', wrapTime: '4:00 PM', hoursWorked: 10, mealPenalty: false, rate: 182, totalPay: 182 },
+];
+
+// ── Wardrobe / Costumes sample data ──────────────────────────────────────────
+
+const C_SARAH_GOWN = uuidv4();
+const C_SARAH_BUSINESS = uuidv4();
+const C_SARAH_CASUAL = uuidv4();
+const C_JAMES_SUIT = uuidv4();
+const C_JAMES_CASUAL = uuidv4();
+const C_DRCHEN_COAT = uuidv4();
+const C_YOUNGSARAH_PERIOD = uuidv4();
+const C_YOUNGSARAH_SUMMER = uuidv4();
+const C_MARCUS_POWERSUIT = uuidv4();
+
+const costumes: CostumeItem[] = [
+  {
+    id: C_SARAH_GOWN, characterId: E_SARAH,
+    name: 'Hospital Gown — Sarah', description: 'Standard hospital gown, pale blue with white pattern',
+    pieces: ['Hospital gown (x4 matching sets)', 'Non-slip hospital socks', 'IV bandage on left hand'],
+    condition: 'Aged', color: '#a8d8ea',
+    continuityNotes: 'IV in left hand Sc 1–3, removed Sc 10. Gown slightly damp Sc 3.',
+  },
+  {
+    id: C_SARAH_BUSINESS, characterId: E_SARAH,
+    name: 'Business Attire — Sarah', description: 'Return-to-work outfit. Professional but slightly too formal.',
+    pieces: ['Charcoal blazer', 'White silk blouse', 'Dark navy trousers', 'Low block heels'],
+    condition: 'New', color: '#4a4a6a',
+    notes: 'Purchased per character arc — she is overcompensating.',
+  },
+  {
+    id: C_SARAH_CASUAL, characterId: E_SARAH,
+    name: 'Casual Apartment — Sarah', description: 'Home wear. Comfortable but guarded.',
+    pieces: ['Grey oversized knit sweater', 'Dark leggings', 'Wool socks'],
+    condition: 'Aged', color: '#888888',
+  },
+  {
+    id: C_JAMES_SUIT, characterId: E_JAMES,
+    name: 'Charcoal Business Suit — James', description: 'Custom tailored charcoal suit. Authority and wealth.',
+    pieces: ['Charcoal wool suit jacket', 'Matching trousers', 'White dress shirt', 'Burgundy tie', 'Black oxfords', 'Leather belt'],
+    condition: 'New', color: '#3d3d3d',
+    continuityNotes: 'Tie loosened by Sc 8. Jacket removed Sc 8.',
+  },
+  {
+    id: C_JAMES_CASUAL, characterId: E_JAMES,
+    name: 'Casual — James', description: 'Relaxed weekend look for park scene.',
+    pieces: ['Navy chore coat', 'Light grey crewneck', 'Dark jeans', 'White sneakers'],
+    condition: 'New', color: '#2b4a6e',
+  },
+  {
+    id: C_DRCHEN_COAT, characterId: E_DR_CHEN,
+    name: "Doctor's Coat — Dr. Chen", description: 'Standard white lab coat over professional attire.',
+    pieces: ["White lab coat (Dr. Chen name tag)", 'Navy dress shirt', 'Grey trousers', 'Stethoscope'],
+    condition: 'Clean', color: '#f5f5f5',
+  },
+  {
+    id: C_YOUNGSARAH_PERIOD, characterId: E_YOUNG_SARAH,
+    name: 'Period Dress 1987 — Young Sarah', description: '1987 period-accurate summer dress for flashback interiors.',
+    pieces: ['Floral cotton dress (80s cut)', 'White ankle socks', 'Mary Jane shoes', 'Scrunchie'],
+    condition: 'Aged', color: '#e8c4a0',
+    notes: 'Dress has been aged — slight fading on shoulders. Multiple sets.',
+  },
+  {
+    id: C_YOUNGSARAH_SUMMER, characterId: E_YOUNG_SARAH,
+    name: 'Summer Play Clothes — Young Sarah', description: 'Exterior yard scene casual wear.',
+    pieces: ['Light blue t-shirt', 'Denim shorts', 'Sneakers (worn, vintage style)', 'Hair in pigtails'],
+    condition: 'Distressed', color: '#87ceeb',
+    continuityNotes: 'Dress and shoes get muddy during rain — matched for coverage shots.',
+  },
+  {
+    id: C_MARCUS_POWERSUIT, characterId: E_MARCUS,
+    name: 'Power Suit — Marcus', description: 'Expensive, aggressive cut. Dark authority.',
+    pieces: ['Black Italian suit jacket', 'Matching slim trousers', 'Black dress shirt (no tie)', 'Black oxfords'],
+    condition: 'New', color: '#1a1a1a',
+    notes: 'Intentionally darker than James — visual contrast between the two men.',
+  },
+];
+
+const sceneCostumes: SceneCostume[] = [
+  { sceneId: BD1, characterId: E_SARAH, costumeId: C_SARAH_GOWN, changeNumber: 1, notes: 'IV on left hand' },
+  { sceneId: BD1, characterId: E_JAMES, costumeId: C_JAMES_SUIT, changeNumber: 1 },
+  { sceneId: BD2, characterId: E_JAMES, costumeId: C_JAMES_SUIT, changeNumber: 1, notes: 'Same day as Sc 1' },
+  { sceneId: BD2, characterId: E_DR_CHEN, costumeId: C_DRCHEN_COAT, changeNumber: 1 },
+  { sceneId: BD3, characterId: E_SARAH, costumeId: C_SARAH_GOWN, changeNumber: 1 },
+  { sceneId: BD3, characterId: E_JAMES, costumeId: C_JAMES_SUIT, changeNumber: 1 },
+  { sceneId: BD4, characterId: E_YOUNG_SARAH, costumeId: C_YOUNGSARAH_PERIOD, changeNumber: 1 },
+  { sceneId: BD5, characterId: E_YOUNG_SARAH, costumeId: C_YOUNGSARAH_SUMMER, changeNumber: 1, notes: 'Gets wet from rain machine' },
+  { sceneId: BD6, characterId: E_SARAH, costumeId: C_SARAH_BUSINESS, changeNumber: 1, notes: 'First time out of gown' },
+  { sceneId: BD7, characterId: E_SARAH, costumeId: C_SARAH_BUSINESS, changeNumber: 1 },
+  { sceneId: BD7, characterId: E_MARCUS, costumeId: C_MARCUS_POWERSUIT, changeNumber: 1 },
+  { sceneId: BD8, characterId: E_SARAH, costumeId: C_SARAH_CASUAL, changeNumber: 1, notes: 'Night scene — she changed after work' },
+  { sceneId: BD8, characterId: E_JAMES, costumeId: C_JAMES_SUIT, changeNumber: 1, notes: 'Jacket removed, tie loosened' },
+  { sceneId: BD9, characterId: E_SARAH, costumeId: C_SARAH_CASUAL, changeNumber: 1 },
+  { sceneId: BD9, characterId: E_JAMES, costumeId: C_JAMES_SUIT, changeNumber: 1 },
+  { sceneId: BD10, characterId: E_SARAH, costumeId: C_SARAH_GOWN, changeNumber: 1, notes: 'Back in gown for medical visit' },
+  { sceneId: BD10, characterId: E_DR_CHEN, costumeId: C_DRCHEN_COAT, changeNumber: 1 },
+  { sceneId: BD13, characterId: E_SARAH, costumeId: C_SARAH_BUSINESS, changeNumber: 1 },
+  { sceneId: BD13, characterId: E_JAMES, costumeId: C_JAMES_SUIT, changeNumber: 1 },
+  { sceneId: BD13, characterId: E_MARCUS, costumeId: C_MARCUS_POWERSUIT, changeNumber: 1 },
+  { sceneId: BD15, characterId: E_SARAH, costumeId: C_SARAH_GOWN, changeNumber: 1 },
+  { sceneId: BD15, characterId: E_JAMES, costumeId: C_JAMES_CASUAL, changeNumber: 1 },
+  { sceneId: BD19, characterId: E_SARAH, costumeId: C_SARAH_CASUAL, changeNumber: 1 },
+  { sceneId: BD19, characterId: E_JAMES, costumeId: C_JAMES_CASUAL, changeNumber: 1 },
+];
+
+// ── Script Revisions sample data ─────────────────────────────────────────────
+
+const REV1 = uuidv4();
+const REV2 = uuidv4();
+
+const revisions: ScriptRevision[] = [
+  {
+    id: REV1, revisionNumber: 1, color: 'White', date: '2026-01-15',
+    author: 'A. Whitmore',
+    description: 'Original shooting script. Full draft with all 18 scenes.',
+    pagesChanged: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'],
+    scenesAffected: ['1', '2', '3', '4A', '4B', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16A', '16B', '17', '18'],
+    isLocked: true,
+  },
+  {
+    id: REV2, revisionNumber: 2, color: 'Blue', date: '2026-02-28',
+    author: 'A. Whitmore / M. Davis',
+    description: 'Act 2 restructure — conference room scene expanded. Added Det. Ross subplot. Sc 16A stunt revised for safety.',
+    pagesChanged: ['12', '13', '14', '15', '30', '31', '32', '43', '44', '45'],
+    scenesAffected: ['6', '7', '12', '13', '16A'],
+    isLocked: false,
+  },
+];
+
+const scriptChanges: ScriptChange[] = [
+  {
+    id: uuidv4(), revisionId: REV2, sceneNumber: '12',
+    changeType: 'Modified',
+    description: 'Conference room scene extended by 2 pages. Board members given individual lines.',
+    oldContent: '2-page dialogue between Sarah and Marcus at board table',
+    newContent: '4-page scene with full board reaction and walkout moment',
+    impactedElements: [E_SARAH, E_MARCUS, E_JAMES, E_ELENA, E_CROWD],
+    impactedDepartments: ['Art Department', 'Wardrobe', 'AD'],
+  },
+  {
+    id: uuidv4(), revisionId: REV2, sceneNumber: '6',
+    changeType: 'Modified',
+    description: 'Law office confrontation reworked — Marcus now threatens Sarah explicitly.',
+    oldContent: 'Tense but civil exchange about missing files',
+    newContent: 'Open threat with physical intimidation blocking',
+    impactedElements: [E_SARAH, E_MARCUS],
+    impactedDepartments: ['AD', 'Camera', 'Stunt Coordinator'],
+  },
+  {
+    id: uuidv4(), revisionId: REV2, sceneNumber: '16A',
+    changeType: 'Modified',
+    description: 'Stunt sequence revised. Car now swerves to avoid oncoming truck rather than mechanical failure.',
+    oldContent: 'Car veers due to brake failure',
+    newContent: 'Oncoming truck forces Sarah off road — requires stunt truck hero vehicle',
+    impactedElements: [E_SARAH, E_STUNT_DOUBLE, E_SEDAN],
+    impactedDepartments: ['Stunts', 'Transportation', 'Camera', 'Special Effects'],
+  },
+  {
+    id: uuidv4(), revisionId: REV2, sceneNumber: '13',
+    changeType: 'Added',
+    description: 'New scene 13A added — Detective Ross interviews hospital receptionist. Brief exposition.',
+    oldContent: '',
+    newContent: 'INT. HOSPITAL LOBBY - DAY. 1/8 page. Det. Ross + receptionist.',
+    impactedElements: [E_DETECTIVE],
+    impactedDepartments: ['AD', 'Casting', 'Locations'],
+  },
+];
+
+const lockedPages: LockedPage[] = [
+  { pageNumber: '1', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '2', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '3', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '25', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '47', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '48', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '49', lockedAtRevision: 1, cannotChange: true },
+];
+
+// ── Sets sample data ──────────────────────────────────────────────────────────
+
+const sets: ProductionSet[] = [
+  {
+    id: uuidv4(),
+    name: 'ICU Room 412',
+    type: 'Studio Build',
+    location: 'Stage A — Paramount Lot',
+    status: 'Ready',
+    buildDate: '2026-02-10',
+    readyDate: '2026-02-28',
+    strikeDate: '2026-03-20',
+    estimatedCost: 42000,
+    actualCost: 44800,
+    sqFootage: 380,
+    linkedScenes: ['1', '14'],
+    linkedLocationName: 'ICU Room 412',
+    departments: {
+      art: 'Full medical build. ICU bed, monitors, IV stands, ceiling tiles, observation window.',
+      construction: 'Walls on 3 sides. Practical door. Ceiling drop for lighting rig.',
+      electric: 'Practical monitors must be lit and operational. Fluorescent ceiling panels.',
+      setDressing: 'Medical equipment rental from Prop Heaven. Fresh flowers for Sc 14.',
+      props: 'IV bag with colored water. Medical chart. Personal items on bedside table.',
+    },
+    photos: [],
+    notes: 'Match precisely between Sc 1 and Sc 14 — full circle callback.',
+  },
+  {
+    id: uuidv4(),
+    name: 'Hospital Corridor',
+    type: 'Studio Build',
+    location: 'Stage A — Paramount Lot',
+    status: 'In Use',
+    buildDate: '2026-02-10',
+    readyDate: '2026-02-28',
+    strikeDate: '2026-03-20',
+    estimatedCost: 28000,
+    actualCost: 27400,
+    sqFootage: 620,
+    linkedScenes: ['2', '3'],
+    linkedLocationName: 'Hospital Corridor',
+    departments: {
+      art: 'Long corridor with nurse station at end. Night exterior visible through window cyclorama.',
+      electric: 'Fluorescent flicker unit for Sc 2 — moody effect.',
+      setDressing: 'Bulletin boards, patient room signs, emergency equipment cabinets.',
+    },
+    photos: [],
+    notes: 'Steady-cam track laid on day 1 — do not strike until wrap day 2.',
+  },
+  {
+    id: uuidv4(),
+    name: 'Downtown Street — Oak & 5th',
+    type: 'Practical Location',
+    location: 'Oak St & 5th Ave, Downtown',
+    status: 'In Use',
+    buildDate: undefined,
+    readyDate: '2026-03-05',
+    strikeDate: '2026-03-06',
+    estimatedCost: 8500,
+    actualCost: 9100,
+    sqFootage: undefined,
+    linkedScenes: ['5', '8'],
+    linkedLocationName: 'City Street - Oak & 5th',
+    departments: {
+      art: 'Period hero car parking. Minimal dressing — remove modern signage.',
+      electric: 'HMI bounce off building face. Generator truck around corner.',
+      grip: 'Dolly on sidewalk for tracking shot with Sarah.',
+    },
+    photos: [],
+    notes: 'City permit #24-882. 6am–6pm window. Parking lot blocked. Police liaison: Ofc. Torres.',
+  },
+  {
+    id: uuidv4(),
+    name: 'Fletcher Living Room — 1987',
+    type: 'Studio Build',
+    location: 'Stage B — Paramount Lot',
+    status: 'In Construction',
+    buildDate: '2026-03-01',
+    readyDate: '2026-03-12',
+    strikeDate: '2026-03-15',
+    estimatedCost: 35000,
+    sqFootage: 480,
+    linkedScenes: ['4A', '18'],
+    linkedLocationName: 'Living Room - 1987',
+    departments: {
+      art: '1987-era furnishings. Striped sofa, wood paneling, tube TV. Warm practical lamps.',
+      construction: 'Reversible build — dresses as 1987 then redresses as present day for Sc 18.',
+      setDressing: 'Props rented from Period Props Inc. Calendar on wall: September 1987.',
+      greens: 'Potted ficus in corner. Practical plants.',
+    },
+    photos: [],
+    notes: 'Art department needs 1 full day to re-dress from 1987 to present-day between Sc 4A and Sc 18.',
+  },
+  {
+    id: uuidv4(),
+    name: 'Riverside Park — Walkway & Bench',
+    type: 'Practical Location',
+    location: 'Riverside Park, North Trail',
+    status: 'Planned',
+    buildDate: undefined,
+    readyDate: '2026-03-18',
+    strikeDate: '2026-03-19',
+    estimatedCost: 3200,
+    sqFootage: undefined,
+    linkedScenes: ['10', '17'],
+    linkedLocationName: 'Park Walkway',
+    departments: {
+      grip: 'Dolly or Steadicam for Sc 10 walk-and-talk.',
+      electric: 'Bounce and fill for early morning light (Sc 10 is DAWN call).',
+    },
+    photos: [],
+    notes: 'No permit required for under 10 crew. Sc 10 call time 5:30am — coordinate with park management.',
+  },
+  {
+    id: uuidv4(),
+    name: 'State Highway 9 — Stunt Site',
+    type: 'Practical Location',
+    location: 'State Hwy 9, Mile Marker 44, Rural Section',
+    status: 'Planned',
+    buildDate: undefined,
+    readyDate: '2026-03-22',
+    strikeDate: '2026-03-22',
+    estimatedCost: 18500,
+    sqFootage: undefined,
+    linkedScenes: ['16A', '16B'],
+    linkedLocationName: 'Rural Road - Accident Site',
+    departments: {
+      art: 'Hero sedan, stunt truck. Skid marks applied by SFX. Crash debris kit.',
+      electric: 'Generator and golden-hour HMI for Sc 16B.',
+      grip: 'Low-loader camera car for chase coverage.',
+    },
+    photos: [],
+    notes: 'FULL ROAD CLOSURE REQUIRED — State permit in progress. Stunt coordinator: Rick Vasquez. Safety briefing mandatory before rehearsals.',
+  },
+];
+
 export const sampleSchedulingProject: SchedulingProject = {
   id: uuidv4(),
   name: 'THE LAST LIGHT',
   elements,
   breakdowns,
   stripBoard,
+  extraGroups,
+  sceneExtras,
+  extrasVouchers,
+  costumes,
+  sceneCostumes,
+  revisions,
+  scriptChanges,
+  lockedPages,
+  sets,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
 };

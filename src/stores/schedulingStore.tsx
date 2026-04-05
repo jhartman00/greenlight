@@ -1,9 +1,15 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import type { SchedulingProject, BreakdownSheet, Element, StripBoardItem } from '../types/scheduling';
+import type {
+  SchedulingProject, BreakdownSheet, Element, StripBoardItem,
+  ExtraGroup, SceneExtras, ExtrasVoucher,
+  CostumeItem, SceneCostume,
+  ScriptRevision, ScriptChange, LockedPage,
+  ProductionSet,
+} from '../types/scheduling';
 import { sampleSchedulingProject } from '../utils/sampleData';
 
-type ActiveView = 'stripboard' | 'breakdowns' | 'elements' | 'dood' | 'calendar';
+type ActiveView = 'stripboard' | 'breakdowns' | 'elements' | 'dood' | 'calendar' | 'extras' | 'wardrobe' | 'script' | 'sets' | 'reports';
 
 interface SchedulingState {
   project: SchedulingProject | null;
@@ -25,7 +31,34 @@ export type SchedulingAction =
   | { type: 'SET_SELECTED_BREAKDOWN'; payload: string | null }
   | { type: 'SET_ACTIVE_VIEW'; payload: ActiveView }
   | { type: 'LOAD_SAMPLE' }
-  | { type: 'DELETE_STRIP_ITEM'; payload: string };
+  | { type: 'DELETE_STRIP_ITEM'; payload: string }
+  // Extras
+  | { type: 'ADD_EXTRA_GROUP'; payload: ExtraGroup }
+  | { type: 'UPDATE_EXTRA_GROUP'; payload: ExtraGroup }
+  | { type: 'DELETE_EXTRA_GROUP'; payload: string }
+  | { type: 'UPDATE_SCENE_EXTRAS'; payload: SceneExtras }
+  | { type: 'ADD_EXTRAS_VOUCHER'; payload: ExtrasVoucher }
+  | { type: 'UPDATE_EXTRAS_VOUCHER'; payload: ExtrasVoucher }
+  | { type: 'DELETE_EXTRAS_VOUCHER'; payload: string }
+  // Costumes
+  | { type: 'ADD_COSTUME'; payload: CostumeItem }
+  | { type: 'UPDATE_COSTUME'; payload: CostumeItem }
+  | { type: 'DELETE_COSTUME'; payload: string }
+  | { type: 'UPDATE_SCENE_COSTUME'; payload: SceneCostume }
+  | { type: 'DELETE_SCENE_COSTUME'; payload: { sceneId: string; characterId: string } }
+  // Script
+  | { type: 'ADD_REVISION'; payload: ScriptRevision }
+  | { type: 'UPDATE_REVISION'; payload: ScriptRevision }
+  | { type: 'DELETE_REVISION'; payload: string }
+  | { type: 'ADD_SCRIPT_CHANGE'; payload: ScriptChange }
+  | { type: 'UPDATE_SCRIPT_CHANGE'; payload: ScriptChange }
+  | { type: 'DELETE_SCRIPT_CHANGE'; payload: string }
+  | { type: 'ADD_LOCKED_PAGE'; payload: LockedPage }
+  | { type: 'DELETE_LOCKED_PAGE'; payload: string }
+  // Sets
+  | { type: 'ADD_SET'; payload: ProductionSet }
+  | { type: 'UPDATE_SET'; payload: ProductionSet }
+  | { type: 'DELETE_SET'; payload: string };
 
 function schedulingReducer(state: SchedulingState, action: SchedulingAction): SchedulingState {
   if (!state.project && action.type !== 'SET_PROJECT' && action.type !== 'LOAD_SAMPLE') {
@@ -180,6 +213,120 @@ function schedulingReducer(state: SchedulingState, action: SchedulingAction): Sc
 
     case 'SET_ACTIVE_VIEW':
       return { ...state, activeView: action.payload };
+
+    // ── Extras ────────────────────────────────────────────────────────────
+    case 'ADD_EXTRA_GROUP': {
+      const project = state.project!;
+      return { ...state, project: { ...project, extraGroups: [...(project.extraGroups ?? []), action.payload], updatedAt: now } };
+    }
+    case 'UPDATE_EXTRA_GROUP': {
+      const project = state.project!;
+      return { ...state, project: { ...project, extraGroups: (project.extraGroups ?? []).map(g => g.id === action.payload.id ? action.payload : g), updatedAt: now } };
+    }
+    case 'DELETE_EXTRA_GROUP': {
+      const project = state.project!;
+      return { ...state, project: { ...project, extraGroups: (project.extraGroups ?? []).filter(g => g.id !== action.payload), updatedAt: now } };
+    }
+    case 'UPDATE_SCENE_EXTRAS': {
+      const project = state.project!;
+      const existing = (project.sceneExtras ?? []).filter(se => se.sceneId !== action.payload.sceneId);
+      return { ...state, project: { ...project, sceneExtras: [...existing, action.payload], updatedAt: now } };
+    }
+    case 'ADD_EXTRAS_VOUCHER': {
+      const project = state.project!;
+      return { ...state, project: { ...project, extrasVouchers: [...(project.extrasVouchers ?? []), action.payload], updatedAt: now } };
+    }
+    case 'UPDATE_EXTRAS_VOUCHER': {
+      const project = state.project!;
+      return { ...state, project: { ...project, extrasVouchers: (project.extrasVouchers ?? []).map(v => v.id === action.payload.id ? action.payload : v), updatedAt: now } };
+    }
+    case 'DELETE_EXTRAS_VOUCHER': {
+      const project = state.project!;
+      return { ...state, project: { ...project, extrasVouchers: (project.extrasVouchers ?? []).filter(v => v.id !== action.payload), updatedAt: now } };
+    }
+
+    // ── Costumes ──────────────────────────────────────────────────────────
+    case 'ADD_COSTUME': {
+      const project = state.project!;
+      return { ...state, project: { ...project, costumes: [...(project.costumes ?? []), action.payload], updatedAt: now } };
+    }
+    case 'UPDATE_COSTUME': {
+      const project = state.project!;
+      return { ...state, project: { ...project, costumes: (project.costumes ?? []).map(c => c.id === action.payload.id ? action.payload : c), updatedAt: now } };
+    }
+    case 'DELETE_COSTUME': {
+      const project = state.project!;
+      return { ...state, project: { ...project, costumes: (project.costumes ?? []).filter(c => c.id !== action.payload), updatedAt: now } };
+    }
+    case 'UPDATE_SCENE_COSTUME': {
+      const project = state.project!;
+      const filtered = (project.sceneCostumes ?? []).filter(sc =>
+        !(sc.sceneId === action.payload.sceneId && sc.characterId === action.payload.characterId)
+      );
+      return { ...state, project: { ...project, sceneCostumes: [...filtered, action.payload], updatedAt: now } };
+    }
+    case 'DELETE_SCENE_COSTUME': {
+      const project = state.project!;
+      return {
+        ...state,
+        project: {
+          ...project,
+          sceneCostumes: (project.sceneCostumes ?? []).filter(sc =>
+            !(sc.sceneId === action.payload.sceneId && sc.characterId === action.payload.characterId)
+          ),
+          updatedAt: now,
+        },
+      };
+    }
+
+    // ── Script ────────────────────────────────────────────────────────────
+    case 'ADD_REVISION': {
+      const project = state.project!;
+      return { ...state, project: { ...project, revisions: [...(project.revisions ?? []), action.payload], updatedAt: now } };
+    }
+    case 'UPDATE_REVISION': {
+      const project = state.project!;
+      return { ...state, project: { ...project, revisions: (project.revisions ?? []).map(r => r.id === action.payload.id ? action.payload : r), updatedAt: now } };
+    }
+    case 'DELETE_REVISION': {
+      const project = state.project!;
+      return { ...state, project: { ...project, revisions: (project.revisions ?? []).filter(r => r.id !== action.payload), updatedAt: now } };
+    }
+    case 'ADD_SCRIPT_CHANGE': {
+      const project = state.project!;
+      return { ...state, project: { ...project, scriptChanges: [...(project.scriptChanges ?? []), action.payload], updatedAt: now } };
+    }
+    case 'UPDATE_SCRIPT_CHANGE': {
+      const project = state.project!;
+      return { ...state, project: { ...project, scriptChanges: (project.scriptChanges ?? []).map(c => c.id === action.payload.id ? action.payload : c), updatedAt: now } };
+    }
+    case 'DELETE_SCRIPT_CHANGE': {
+      const project = state.project!;
+      return { ...state, project: { ...project, scriptChanges: (project.scriptChanges ?? []).filter(c => c.id !== action.payload), updatedAt: now } };
+    }
+    case 'ADD_LOCKED_PAGE': {
+      const project = state.project!;
+      const filtered = (project.lockedPages ?? []).filter(p => p.pageNumber !== action.payload.pageNumber);
+      return { ...state, project: { ...project, lockedPages: [...filtered, action.payload], updatedAt: now } };
+    }
+    case 'DELETE_LOCKED_PAGE': {
+      const project = state.project!;
+      return { ...state, project: { ...project, lockedPages: (project.lockedPages ?? []).filter(p => p.pageNumber !== action.payload), updatedAt: now } };
+    }
+
+    // ── Sets ──────────────────────────────────────────────────────────────
+    case 'ADD_SET': {
+      const project = state.project!;
+      return { ...state, project: { ...project, sets: [...(project.sets ?? []), action.payload], updatedAt: now } };
+    }
+    case 'UPDATE_SET': {
+      const project = state.project!;
+      return { ...state, project: { ...project, sets: (project.sets ?? []).map(s => s.id === action.payload.id ? action.payload : s), updatedAt: now } };
+    }
+    case 'DELETE_SET': {
+      const project = state.project!;
+      return { ...state, project: { ...project, sets: (project.sets ?? []).filter(s => s.id !== action.payload), updatedAt: now } };
+    }
 
     default:
       return state;
