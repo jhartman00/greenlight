@@ -332,9 +332,9 @@ function ScriptView({ breakdowns, revisions, scriptChanges, lockedPages }: {
                     </div>
                   </div>
 
-                  {/* Action/description */}
-                  {bd.description && (
-                    <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{bd.description}</p>
+                  {/* Script content or description */}
+                  {(bd.scriptContent || bd.description) && (
+                    <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{bd.scriptContent || bd.description}</div>
                   )}
 
                   {/* Scene notes */}

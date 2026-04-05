@@ -26,6 +26,7 @@ export interface BreakdownSheet {
   elements: string[];
   notes: string;
   estimatedTime?: string;
+  scriptContent?: string;
 }
 
 export type StripBoardItem =
