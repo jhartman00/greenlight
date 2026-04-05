@@ -157,7 +157,7 @@ function DayByDayReport({ days, breakdowns, elements }: { days: ShootDay[]; brea
                       <td className="px-3 py-1.5 font-semibold text-amber-300">{scene.sceneNumber}</td>
                       <td className="px-3 py-1.5 text-gray-400">{scene.intExt} {scene.dayNight}</td>
                       <td className="px-3 py-1.5 text-gray-300">{scene.setName}</td>
-                      <td className="px-3 py-1.5 text-gray-400 max-w-xs truncate">{scene.description}</td>
+                      <td className="px-3 py-1.5 text-gray-400 break-words">{scene.description}</td>
                       <td className="px-3 py-1.5 text-right font-mono text-gray-300">{scene.pageCount}</td>
                     </tr>
                   ))}

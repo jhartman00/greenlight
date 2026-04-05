@@ -94,7 +94,7 @@ export default function AccountList() {
                   {isExpanded && (
                     <div className="bg-gray-850 border-b border-gray-700">
                       <div className="overflow-x-auto">
-                      <table className="w-full text-xs min-w-[640px]">
+                      <table className="w-full text-xs">
                         <thead className="bg-gray-800 border-b border-gray-700">
                           <tr className="text-gray-400 font-semibold">
                             <th className="px-4 py-2 text-left pl-12">Description</th>

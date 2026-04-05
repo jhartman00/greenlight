@@ -41,11 +41,11 @@ export default function Strip({ id, breakdown, elements, onSelect, onContextMenu
       <div className="w-10 flex-shrink-0 px-1 font-bold text-center truncate">{breakdown.sceneNumber}</div>
       <div className="w-16 flex-shrink-0 px-1 text-center"><span className="font-medium">{breakdown.intExt}</span></div>
       <div className="w-12 flex-shrink-0 px-1 text-center font-medium">{breakdown.dayNight}</div>
-      <div className="w-56 flex-shrink-0 min-w-0 px-1 truncate" title={`${breakdown.setName} - ${breakdown.location}`}>
+      <div className="w-36 flex-shrink-0 min-w-0 px-1 truncate" title={`${breakdown.setName} - ${breakdown.location}`}>
         <span className="font-medium">{breakdown.setName}</span>
         <span className="opacity-60 ml-1">{breakdown.location}</span>
       </div>
-      <div className="flex-1 min-w-[300px] min-w-0 px-1 truncate opacity-70" title={breakdown.description}>{breakdown.description}</div>
+      <div className="flex-1 min-w-0 px-1 truncate opacity-70" title={breakdown.description}>{breakdown.description}</div>
       <div className="w-12 flex-shrink-0 px-1 text-center text-xs font-mono">{breakdown.pageCount}</div>
       <div className="w-20 flex-shrink-0 px-1 flex gap-0.5 flex-wrap overflow-hidden">
         {castElements.slice(0, 5).map(el => {
