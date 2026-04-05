@@ -1,11 +1,12 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useBudgeting } from '../../stores/budgetingStore';
 import { formatCurrency } from '../../utils/calculations';
 
 export default function TopSheet() {
   const { state, dispatch } = useBudgeting();
   const navigate = useNavigate();
+  const { projectId } = useParams<{ projectId: string }>();
 
   if (!state.project) return <div className="flex-1 flex items-center justify-center text-gray-500">No project loaded.</div>;
 
@@ -15,7 +16,7 @@ export default function TopSheet() {
 
   const handleSelectAccount = (accountId: string) => {
     dispatch({ type: 'SET_SELECTED_ACCOUNT', payload: accountId });
-    navigate('/budgeting/accounts');
+    navigate(`/project/${projectId}/budgeting/accounts`);
   };
 
   const handleLock = () => {

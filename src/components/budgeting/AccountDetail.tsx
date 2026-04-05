@@ -1,5 +1,5 @@
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useBudgeting } from '../../stores/budgetingStore';
 import { formatCurrency } from '../../utils/calculations';
 import type { LineItem } from '../../types/budgeting';
@@ -9,6 +9,7 @@ import type { LineItem } from '../../types/budgeting';
 export default function AccountDetail() {
   const { state, dispatch } = useBudgeting();
   const navigate = useNavigate();
+  const { projectId } = useParams<{ projectId: string }>();
 
   if (!state.project) return <div className="flex-1 flex items-center justify-center text-gray-500">No project loaded.</div>;
 
@@ -65,7 +66,7 @@ export default function AccountDetail() {
     <div className="flex flex-col flex-1 min-h-0 bg-gray-900">
       <div className="px-5 py-3 border-b border-gray-700 flex-shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm">
-          <button onClick={() => navigate('/budgeting/topsheet')} className="text-gray-400 hover:text-amber-400">Top Sheet</button>
+          <button onClick={() => navigate(`/project/${projectId}/budgeting/topsheet`)} className="text-gray-400 hover:text-amber-400">Top Sheet</button>
           <span className="text-gray-600">›</span>
           <span className="text-gray-500 text-xs">{group.name}</span>
           <span className="text-gray-600">›</span>
