@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { api } from '../lib/api';
 import type { BudgetProject, Fringe, LineItem, AccountGroup, Account } from '../types/budgeting';
 import { sampleBudgetProject } from '../utils/sampleData';
 import { calculateAccountSubtotal, calculateGroupSubtotal, calculateGrandTotal, calculateContingency } from '../utils/calculations';
@@ -227,25 +228,35 @@ interface BudgetingContextValue {
 
 const BudgetingContext = createContext<BudgetingContextValue | null>(null);
 
-const STORAGE_KEY = 'greenlight_budgeting';
-
-export function BudgetingProvider({ children }: { children: React.ReactNode }) {
-  const savedStr = localStorage.getItem(STORAGE_KEY);
-  const initialProject = savedStr ? JSON.parse(savedStr) : sampleBudgetProject;
-
+export function BudgetingProvider({ children, projectId }: { children: React.ReactNode; projectId: string }) {
   const [state, dispatch] = useReducer(budgetingReducer, {
-    project: initialProject,
+    project: null,
     selectedAccountId: null,
     activeView: 'topsheet' as ActiveView,
   });
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isLoadingRef = useRef(true);
 
   useEffect(() => {
+    if (!projectId) return;
+    isLoadingRef.current = true;
+    api.getProject(projectId).then(row => {
+      const data = row.budgeting_data;
+      if (data && data.accountGroups) {
+        dispatch({ type: 'SET_PROJECT', payload: data });
+      }
+    }).finally(() => {
+      isLoadingRef.current = false;
+    });
+  }, [projectId]);
+
+  useEffect(() => {
+    if (isLoadingRef.current) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       if (state.project) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.project));
+        api.saveBudgeting(projectId, state.project);
       }
     }, 500);
     return () => {
