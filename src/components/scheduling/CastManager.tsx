@@ -523,7 +523,7 @@ function DealMemoTab() {
   const { state } = useScheduling();
   const members = state.project?.castMembers ?? [];
 
-  const { breakdowns, stripBoard } = state.project!;
+  const { breakdowns } = state.project!;
   const sceneCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const m of members) {
