@@ -86,8 +86,8 @@ const breakdowns = [
     location: 'Luthadel Slums', setName: 'Skaa Quarter Street',
     description: 'COLD OPEN. A skaa plantation worker watches the mists roll in at night. Terrified. The mists claim someone in the distance. Title card: MISTBORN.',
     scriptPage: 1, pageCount: '2/8',
-    elements: ['el-mist', 'el-ash-fall', 'el-ash-makeup', 'el-skaa-rags', 'el-allomancy-sounds'],
-    notes: 'Establish the world. Mist is a character. Ash falls everywhere.'
+    elements: ['el-mist', 'el-ash-fall', 'el-ash-makeup', 'el-skaa-rags', 'el-allomancy-sounds', 'el-skaa-carts', 'el-rain-towers'],
+    notes: 'Establish the world. Mist is a character. Ash falls everywhere. Skaa carts in background. Rain/ash towers for atmosphere.'
   },
   {
     id: 'sc-2', sceneNumber: '2', intExt: 'INT', dayNight: 'NIGHT',
@@ -134,8 +134,8 @@ const breakdowns = [
     location: 'Keep Venture', setName: 'Noble Ballroom',
     description: 'Vin\'s first noble ball, disguised as Lady Valette Renoux. She\'s overwhelmed by the opulence. Meets ELEND VENTURE reading in a corner. Instant chemistry. She Soothes guards to move through the crowd.',
     scriptPage: 15, pageCount: '6/8',
-    elements: ['el-vin', 'el-elend', 'el-vin-transformation', 'el-noble-gowns', 'el-noble-suits', 'el-noble-jewelry', 'el-vfx-metalburn', 'el-allomancy-sounds'],
-    notes: 'Cinderella moment. Contrast street Vin with noble Vin. Elend is reading at a ball. 100+ extras in noble attire.'
+    elements: ['el-vin', 'el-elend', 'el-straff', 'el-vin-transformation', 'el-noble-gowns', 'el-noble-suits', 'el-noble-jewelry', 'el-vfx-metalburn', 'el-allomancy-sounds', 'el-carriages'],
+    notes: 'Cinderella moment. Contrast street Vin with noble Vin. Elend is reading at a ball. Straff Venture present. 100+ extras in noble attire. Carriages arriving.'
   },
   {
     id: 'sc-8', sceneNumber: '8', intExt: 'EXT', dayNight: 'NIGHT',
@@ -158,8 +158,8 @@ const breakdowns = [
     location: 'Keep Venture', setName: 'Noble Ballroom',
     description: 'Second ball. Vin dances with Elend. Breeze works the crowd, Sooting nobles. Vin discovers Shan Elariel is also Mistborn when she senses her burning metals.',
     scriptPage: 23, pageCount: '4/8',
-    elements: ['el-vin', 'el-elend', 'el-breeze', 'el-shan', 'el-noble-gowns', 'el-noble-suits', 'el-noble-jewelry', 'el-vfx-metalburn', 'el-allomancy-sounds'],
-    notes: 'Political intrigue ramps up. Vin is getting better at the game. Shan is dangerous.'
+    elements: ['el-vin', 'el-elend', 'el-breeze', 'el-shan', 'el-noble-gowns', 'el-noble-suits', 'el-noble-jewelry', 'el-vfx-metalburn', 'el-allomancy-sounds', 'el-carriages'],
+    notes: 'Political intrigue ramps up. Vin is getting better at the game. Shan is dangerous. Carriages in establishing shot.'
   },
   {
     id: 'sc-11', sceneNumber: '11', intExt: 'INT', dayNight: 'DAY',
@@ -190,8 +190,8 @@ const breakdowns = [
     location: 'Kredik Shaw Interior', setName: 'Lord Ruler\'s Throne Room',
     description: 'VIN confronts the LORD RULER in his throne room. Uses the Eleventh Metal. Discovers the truth: he\'s not the Hero of Ages. Draws on the mists, tears his Hemalurgic spikes free. The Lord Ruler ages and dies.',
     scriptPage: 36, pageCount: '7/8',
-    elements: ['el-vin', 'el-lordruler', 'el-mistcloak', 'el-atium', 'el-vfx-steelpush', 'el-vfx-atium', 'el-vfx-metalburn', 'el-stunt-fights', 'el-stunt-allomancy', 'el-wire-rigs', 'el-kredik-shaw', 'el-mist', 'el-fire', 'el-allomancy-sounds'],
-    notes: 'CLIMAX. Biggest VFX sequence. Lord Ruler aging is major prosthetic/CG work. Vin draws on the mist itself. Spectacular.'
+    elements: ['el-vin', 'el-lordruler', 'el-mistcloak', 'el-atium', 'el-vfx-steelpush', 'el-vfx-atium', 'el-vfx-metalburn', 'el-vfx-koloss', 'el-stunt-fights', 'el-stunt-allomancy', 'el-wire-rigs', 'el-kredik-shaw', 'el-hathsin-set', 'el-mist', 'el-fire', 'el-allomancy-sounds', 'el-rain-towers'],
+    notes: 'CLIMAX. Biggest VFX sequence. Lord Ruler aging is major prosthetic/CG work. Vin draws on the mist itself. Koloss vision during Atium burn. Hathsin flashback insert. Rain/ash towers for throne room mist.'
   },
   {
     id: 'sc-15', sceneNumber: '15', intExt: 'EXT', dayNight: 'DAWN',
@@ -255,6 +255,19 @@ const sceneExtras = [
   { sceneId: 'sc-1', groups: [{ groupId: 'eg-skaa-crowd', headcount: 20, callTime: '6:00 PM', wrapTime: '2:00 AM', wardrobe: 'Plantation workers, ash-covered' }] },
 ];
 
+// ── EXTRAS VOUCHERS ─────────────────────────────────────────────────────────
+
+const extrasVouchers = [
+  { id: 'ev-1', date: '2026-06-04', sceneId: 'sc-7', groupId: 'eg-nobles', name: 'Sarah Mitchell', callTime: '5:00 AM', wrapTime: '7:00 PM', hoursWorked: 14, mealPenalty: false, rate: 250, totalPay: 437.50, notes: 'Noble ballroom, Table 3' },
+  { id: 'ev-2', date: '2026-06-04', sceneId: 'sc-7', groupId: 'eg-nobles', name: 'James Rodriguez', callTime: '5:00 AM', wrapTime: '7:30 PM', hoursWorked: 14.5, mealPenalty: true, rate: 250, totalPay: 475.00, notes: 'Noble ballroom, Dance floor' },
+  { id: 'ev-3', date: '2026-06-04', sceneId: 'sc-7', groupId: 'eg-guards', name: 'Mike Chen', callTime: '5:00 AM', wrapTime: '6:00 PM', hoursWorked: 13, mealPenalty: false, rate: 175, totalPay: 292.50, notes: 'Guard post, main entrance' },
+  { id: 'ev-4', date: '2026-06-13', sceneId: 'sc-13', groupId: 'eg-skaa-crowd', name: 'Ana Torres', callTime: '4:00 AM', wrapTime: '8:00 PM', hoursWorked: 16, mealPenalty: true, rate: 150, totalPay: 337.50, notes: 'Front row of crowd, reaction shots' },
+  { id: 'ev-5', date: '2026-06-13', sceneId: 'sc-13', groupId: 'eg-skaa-crowd', name: 'David Kim', callTime: '4:00 AM', wrapTime: '7:00 PM', hoursWorked: 15, mealPenalty: true, rate: 150, totalPay: 318.75, notes: 'Crowd surge group' },
+  { id: 'ev-6', date: '2026-06-13', sceneId: 'sc-13', groupId: 'eg-skaa-rebels', name: 'Chris Palmer', callTime: '4:00 AM', wrapTime: '8:00 PM', hoursWorked: 16, mealPenalty: true, rate: 175, totalPay: 393.75, notes: 'Rebel leader, featured in wide shot' },
+  { id: 'ev-7', date: '2026-06-05', sceneId: 'sc-10', groupId: 'eg-nobles', name: 'Rebecca Stein', callTime: '5:00 AM', wrapTime: '6:00 PM', hoursWorked: 13, mealPenalty: false, rate: 250, totalPay: 406.25, notes: 'Seated at head table with Elend' },
+  { id: 'ev-8', date: '2026-06-13', sceneId: 'sc-13', groupId: 'eg-obligators', name: 'Thomas Weir', ssn_last4: '4821', callTime: '6:00 AM', wrapTime: '4:00 PM', hoursWorked: 10, mealPenalty: false, rate: 200, totalPay: 250.00, notes: 'SAG. Obligator with speaking proximity.' },
+];
+
 // ── COSTUMES ────────────────────────────────────────────────────────────────
 
 const costumes = [
@@ -266,6 +279,60 @@ const costumes = [
   { id: 'cos-kelsier', characterId: 'el-kelsier', name: 'Kelsier — The Survivor', description: 'Charismatic thief leader. Distinctive scarred arms.', pieces: ['White shirt (sleeves rolled)', 'Dark vest', 'Trousers', 'Mistcloak', 'Arm scar prosthetics'], condition: 'Aged', color: '#F5F5DC', notes: 'Consistent look throughout. Hathsin scars always visible on arms.' },
   { id: 'cos-elend', characterId: 'el-elend', name: 'Elend — Disheveled Noble', description: 'Expensive clothes worn carelessly. Always slightly rumpled.', pieces: ['Wrinkled white shirt', 'Untucked waistcoat', 'Fine but scuffed boots', 'Book (always carrying one)'], condition: 'New', color: '#E8E0D0', notes: 'Contrast with other perfect nobles. He doesn\'t care about appearance.' },
   { id: 'cos-lordruler', characterId: 'el-lordruler', name: 'Lord Ruler — Divine Tyrant', description: 'Godlike presence. White and gold robes.', pieces: ['White silk robes with gold trim', 'Golden breastplate', 'Jeweled crown/circlet', 'Bare feet (deliberate)'], condition: 'New', color: '#FFD700', notes: 'Scenes 13-14. Must convey immortal power. Bare feet = he doesn\'t need armor.' },
+];
+
+// ── SCENE COSTUMES (Costume Plot assignments) ───────────────────────────
+
+const sceneCostumes = [
+  // Vin - Street Urchin
+  { sceneId: 'sc-2', characterId: 'el-vin', costumeId: 'cos-vin-street', changeNumber: 1, notes: 'Dirty, hiding in corner' },
+  { sceneId: 'sc-3', characterId: 'el-vin', costumeId: 'cos-vin-street', changeNumber: 1, notes: 'Same outfit from Sc. 2 — continuous' },
+  { sceneId: 'sc-5', characterId: 'el-vin', costumeId: 'cos-vin-street', changeNumber: 1, notes: 'Slightly cleaner than Sc. 2-3' },
+  // Vin - Training
+  { sceneId: 'sc-4', characterId: 'el-vin', costumeId: 'cos-vin-training', changeNumber: 1, notes: 'First time in Mistcloak' },
+  { sceneId: 'sc-6', characterId: 'el-vin', costumeId: 'cos-vin-training', changeNumber: 1, notes: 'Continuity: vial belt visible' },
+  { sceneId: 'sc-12', characterId: 'el-vin', costumeId: 'cos-vin-training', changeNumber: 1, notes: 'Battle-worn by end of fight' },
+  // Vin - Ball Gowns
+  { sceneId: 'sc-7', characterId: 'el-vin', costumeId: 'cos-vin-ball1', changeNumber: 1, notes: 'Cinderella moment — first time in finery' },
+  { sceneId: 'sc-10', characterId: 'el-vin', costumeId: 'cos-vin-ball2', changeNumber: 1, notes: 'More confident, owns the look' },
+  { sceneId: 'sc-11', characterId: 'el-vin', costumeId: 'cos-vin-ball2', changeNumber: 1, notes: 'At Renoux estate, still in noble attire' },
+  // Vin - Final Battle
+  { sceneId: 'sc-14', characterId: 'el-vin', costumeId: 'cos-vin-final', changeNumber: 1, notes: 'Pristine at start, progressively destroyed' },
+  { sceneId: 'sc-15', characterId: 'el-vin', costumeId: 'cos-vin-final', changeNumber: 1, notes: 'Torn Mistcloak, ash-covered. Continuity from Sc. 14.' },
+  // Kelsier
+  { sceneId: 'sc-3', characterId: 'el-kelsier', costumeId: 'cos-kelsier', changeNumber: 1, notes: 'Dramatic entrance, sleeves rolled' },
+  { sceneId: 'sc-4', characterId: 'el-kelsier', costumeId: 'cos-kelsier', changeNumber: 1, notes: 'Full Mistcloak for rooftop' },
+  { sceneId: 'sc-5', characterId: 'el-kelsier', costumeId: 'cos-kelsier', changeNumber: 1, notes: 'Relaxed, vest unbuttoned' },
+  { sceneId: 'sc-6', characterId: 'el-kelsier', costumeId: 'cos-kelsier', changeNumber: 1, notes: 'Full Mistcloak, training mode' },
+  { sceneId: 'sc-8', characterId: 'el-kelsier', costumeId: 'cos-kelsier', changeNumber: 1, notes: 'Mistcloak gets torn in Inquisitor fight' },
+  { sceneId: 'sc-9', characterId: 'el-kelsier', costumeId: 'cos-kelsier', changeNumber: 1, notes: 'No Mistcloak, daytime' },
+  { sceneId: 'sc-13', characterId: 'el-kelsier', costumeId: 'cos-kelsier', changeNumber: 1, notes: 'Full Mistcloak. Hero wardrobe for death scene.' },
+  // Elend
+  { sceneId: 'sc-7', characterId: 'el-elend', costumeId: 'cos-elend', changeNumber: 1, notes: 'Notably rumpled compared to other nobles' },
+  { sceneId: 'sc-10', characterId: 'el-elend', costumeId: 'cos-elend', changeNumber: 1, notes: 'Different waistcoat, same energy' },
+  { sceneId: 'sc-15', characterId: 'el-elend', costumeId: 'cos-elend', changeNumber: 1, notes: 'Ash-dusted, post-revolution' },
+  // Lord Ruler
+  { sceneId: 'sc-13', characterId: 'el-lordruler', costumeId: 'cos-lordruler', changeNumber: 1, notes: 'Full divine regalia. Immaculate.' },
+  { sceneId: 'sc-14', characterId: 'el-lordruler', costumeId: 'cos-lordruler', changeNumber: 1, notes: 'Robes become ragged as he ages and dies' },
+];
+
+// ── LOCKED PAGES ────────────────────────────────────────────────────────
+
+const lockedPages = [
+  { pageNumber: '1', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '2', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '3', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '4', lockedAtRevision: 1, cannotChange: false },
+  { pageNumber: '5', lockedAtRevision: 1, cannotChange: false },
+  { pageNumber: '6', lockedAtRevision: 1, cannotChange: false },
+  { pageNumber: '9', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '10', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '11', lockedAtRevision: 1, cannotChange: true },
+  { pageNumber: '12', lockedAtRevision: 2, cannotChange: false },
+  { pageNumber: '19', lockedAtRevision: 2, cannotChange: true },
+  { pageNumber: '20', lockedAtRevision: 2, cannotChange: true },
+  { pageNumber: '21', lockedAtRevision: 2, cannotChange: true },
+  { pageNumber: '22', lockedAtRevision: 1, cannotChange: true },
 ];
 
 // ── SCRIPT REVISIONS ────────────────────────────────────────────────────────
@@ -436,12 +503,12 @@ const schedulingProject = {
   shootStartDate: '2026-06-01',
   extraGroups,
   sceneExtras,
-  extrasVouchers: [],
+  extrasVouchers,
   costumes,
-  sceneCostumes: [],
+  sceneCostumes,
   revisions,
   scriptChanges,
-  lockedPages: [],
+  lockedPages,
   sets,
   createdAt: now,
   updatedAt: now,
