@@ -1,5 +1,9 @@
 import type { ElementCategory } from '../types/scheduling';
 
+export function getStripColor(intExt: string, dayNight: string): string {
+  return getStripColors(intExt, dayNight).bg;
+}
+
 export function getStripColors(intExt: string, dayNight: string): { bg: string; text: string; stripe?: string } {
   if (dayNight === 'DAWN') return { bg: '#fdba74', text: '#111827' };
   if (dayNight === 'DUSK') return { bg: '#a855f7', text: '#ffffff' };

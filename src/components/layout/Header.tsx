@@ -1,81 +1,64 @@
-import { useLocation } from 'react-router-dom'
-import { useScheduling } from '../../stores/schedulingStore'
-import { useBudgeting } from '../../stores/budgetingStore'
-
-const PAGE_TITLES: Record<string, string> = {
-  '/scheduling/breakdown': 'Breakdown List',
-  '/scheduling/stripboard': 'Strip Board',
-  '/scheduling/elements': 'Element Manager',
-  '/scheduling/dood': 'Day Out of Days',
-  '/scheduling/calendar': 'Calendar',
-  '/budgeting': 'Top Sheet',
-  '/budgeting/accounts': 'Accounts',
-  '/budgeting/globals': 'Globals',
-  '/budgeting/fringes': 'Fringes',
-  '/budgeting/reports': 'Budget Reports',
-  '/budgeting/actuals': 'Actuals Tracker',
-}
-
-function deriveTitle(pathname: string): string {
-  // Exact match first
-  if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname]
-
-  // Check breakdown detail route: /scheduling/breakdown/:id
-  if (/^\/scheduling\/breakdown\/.+/.test(pathname)) return 'Breakdown Sheet'
-
-  // Check account detail route: /budgeting/account/:groupId/:accountId
-  if (/^\/budgeting\/account\/.+/.test(pathname)) return 'Account Detail'
-
-  // Fallback: capitalise path segments
-  const segment = pathname.split('/').filter(Boolean).pop() ?? ''
-  return segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')
-}
-
-function deriveSection(pathname: string): 'Scheduling' | 'Budgeting' | null {
-  if (pathname.startsWith('/scheduling')) return 'Scheduling'
-  if (pathname.startsWith('/budgeting')) return 'Budgeting'
-  return null
-}
+import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useScheduling } from '../../stores/schedulingStore';
+import { useBudgeting } from '../../stores/budgetingStore';
 
 export default function Header() {
-  const location = useLocation()
-  const { state: schedState } = useScheduling()
-  const { state: budgetState } = useBudgeting()
+  const location = useLocation();
+  const { state: schedState, dispatch: schedDispatch } = useScheduling();
+  const { state: budgetState } = useBudgeting();
 
-  const section = deriveSection(location.pathname)
-  const pageTitle = deriveTitle(location.pathname)
+  const isScheduling = location.pathname.startsWith('/scheduling');
+  const isBudgeting = location.pathname.startsWith('/budgeting');
 
-  const projectName =
-    section === 'Scheduling'
-      ? schedState.project?.name
-      : section === 'Budgeting'
-      ? budgetState.project?.name
-      : undefined
+  const projectName = isScheduling ? schedState.project?.name : budgetState.project?.name;
+
+  const [editing, setEditing] = useState(false);
+  const [nameValue, setNameValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleNameClick = () => {
+    if (projectName) { setNameValue(projectName); setEditing(true); }
+  };
+
+  useEffect(() => {
+    if (editing && inputRef.current) { inputRef.current.focus(); inputRef.current.select(); }
+  }, [editing]);
+
+  const handleNameSave = () => {
+    if (nameValue.trim() && schedState.project && isScheduling) {
+      schedDispatch({ type: 'SET_PROJECT', payload: { ...schedState.project, name: nameValue.trim() } });
+    }
+    setEditing(false);
+  };
+
+  const moduleBadge = isScheduling ? 'Scheduling' : isBudgeting ? 'Budgeting' : '';
 
   return (
-    <header className="h-12 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4 flex-shrink-0">
-      {/* Left: page title + section badge */}
-      <div className="flex items-center gap-3 min-w-0">
-        <h1 className="text-gray-100 text-sm font-semibold truncate">{pageTitle}</h1>
-        {section && (
-          <span className="hidden sm:inline-flex text-xs px-2 py-0.5 rounded bg-gray-700 text-gray-400 font-medium uppercase tracking-wider flex-shrink-0">
-            {section}
+    <header className="h-12 bg-gray-900 border-b border-gray-700 flex items-center px-4 gap-4 flex-shrink-0 no-print">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        {editing ? (
+          <input ref={inputRef} value={nameValue} onChange={e => setNameValue(e.target.value)}
+            onBlur={handleNameSave}
+            onKeyDown={e => { if (e.key === 'Enter') handleNameSave(); if (e.key === 'Escape') setEditing(false); }}
+            className="bg-gray-800 text-gray-100 text-sm font-semibold px-2 py-1 rounded border border-amber-500 outline-none" />
+        ) : (
+          <span onClick={handleNameClick}
+            className="text-gray-100 text-sm font-semibold truncate cursor-pointer hover:text-amber-400 transition-colors"
+            title="Click to rename project">
+            {projectName || 'No Project'}
           </span>
+        )}
+        {moduleBadge && (
+          <span className="text-xs px-2 py-0.5 rounded bg-amber-500 text-gray-900 font-bold uppercase tracking-wide flex-shrink-0">{moduleBadge}</span>
         )}
       </div>
-
-      {/* Right: project name + auto-save indicator */}
-      <div className="flex items-center gap-3 flex-shrink-0">
-        {projectName && (
-          <span className="hidden md:block text-xs text-gray-400 truncate max-w-[180px]" title={projectName}>
-            {projectName}
-          </span>
-        )}
-        <span className="flex items-center gap-1.5 text-xs text-gray-500">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+      <div className="flex items-center gap-3">
+        <span className="text-xs text-gray-500 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
           Auto-saved
         </span>
       </div>
     </header>
-  )
+  );
 }

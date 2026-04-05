@@ -1,404 +1,126 @@
-import { useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import { useScheduling } from '../../stores/schedulingStore'
-import { getCategoryColor, getCategoryBgHex } from '../../utils/colors'
-import type { Element, ElementCategory } from '../../types/scheduling'
+import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { useScheduling } from '../../stores/schedulingStore';
+import type { ElementCategory } from '../../types/scheduling';
+import { ELEMENT_CATEGORY_COLORS } from '../../utils/colors';
 
 const ALL_CATEGORIES: ElementCategory[] = [
-  'Cast', 'Extras', 'Stunts', 'Vehicles', 'Props',
-  'Wardrobe', 'Makeup/Hair', 'Livestock/Animals',
-  'Sound Effects/Music', 'Special Effects', 'Special Equipment',
-  'Art Department', 'Set Dressing', 'Greenery',
-  'Visual Effects', 'Mechanical Effects', 'Miscellaneous',
-  'Notes', 'Security',
-]
+  'Cast', 'Extras', 'Stunts', 'Vehicles', 'Props', 'Wardrobe', 'Makeup/Hair',
+  'Livestock/Animals', 'Sound Effects/Music', 'Special Effects', 'Special Equipment',
+  'Art Department', 'Set Dressing', 'Greenery', 'Visual Effects', 'Mechanical Effects',
+  'Miscellaneous', 'Notes', 'Security',
+];
 
-interface EditingState {
-  id: string
-  name: string
-  notes: string
-}
-
-interface AddingState {
-  category: ElementCategory
-  name: string
-  notes: string
-}
+interface EditingElement { id: string | null; name: string; notes: string; category: ElementCategory; }
 
 export default function ElementManager() {
-  const { state, dispatch } = useScheduling()
-  const [search, setSearch] = useState('')
-  const [editing, setEditing] = useState<EditingState | null>(null)
-  const [adding, setAdding] = useState<AddingState | null>(null)
-  const [collapsed, setCollapsed] = useState<Set<ElementCategory>>(new Set())
-  const [globalAddCategory, setGlobalAddCategory] = useState<ElementCategory>('Cast')
-  const [showGlobalAdd, setShowGlobalAdd] = useState(false)
+  const { state, dispatch } = useScheduling();
+  const [expandedCategories, setExpandedCategories] = useState<Set<ElementCategory>>(new Set(['Cast']));
+  const [editing, setEditing] = useState<EditingElement | null>(null);
 
-  const project = state.project
-  if (!project) {
-    return (
-      <div className="flex items-center justify-center h-64 text-gray-400">
-        No project loaded.
-      </div>
-    )
-  }
+  if (!state.project) return <div className="flex-1 flex items-center justify-center text-gray-500">No project loaded.</div>;
 
-  const allElements = project.elements
-  const allBreakdowns = project.breakdowns
+  const { project } = state;
 
-  // Count which scenes each element appears in
-  function sceneCount(elementId: string): number {
-    return allBreakdowns.filter(b => b.elements.includes(elementId)).length
-  }
+  const toggleCategory = (cat: ElementCategory) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat); else next.add(cat);
+      return next;
+    });
+  };
 
-  function toggleCollapse(cat: ElementCategory) {
-    setCollapsed(prev => {
-      const next = new Set(prev)
-      next.has(cat) ? next.delete(cat) : next.add(cat)
-      return next
-    })
-  }
-
-  function startAdding(category: ElementCategory) {
-    setAdding({ category, name: '', notes: '' })
-    setEditing(null)
-  }
-
-  function commitAdd() {
-    if (!adding || !adding.name.trim()) {
-      setAdding(null)
-      return
+  const handleSave = () => {
+    if (!editing || !editing.name.trim()) return;
+    if (editing.id) {
+      dispatch({ type: 'UPDATE_ELEMENT', payload: { id: editing.id, category: editing.category, name: editing.name.trim(), notes: editing.notes } });
+    } else {
+      dispatch({ type: 'ADD_ELEMENT', payload: { id: uuidv4(), category: editing.category, name: editing.name.trim(), notes: editing.notes } });
     }
-    const el: Element = {
-      id: uuidv4(),
-      category: adding.category,
-      name: adding.name.trim(),
-      notes: adding.notes.trim() || undefined,
+    setEditing(null);
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Delete this element? It will be removed from all scenes.')) {
+      dispatch({ type: 'DELETE_ELEMENT', payload: id });
     }
-    dispatch({ type: 'ADD_ELEMENT', payload: el })
-    setAdding(null)
-  }
-
-  function startEditing(el: Element) {
-    setEditing({ id: el.id, name: el.name, notes: el.notes ?? '' })
-    setAdding(null)
-  }
-
-  function commitEdit() {
-    if (!editing) return
-    const el = allElements.find(e => e.id === editing.id)
-    if (!el) { setEditing(null); return }
-    if (!editing.name.trim()) { setEditing(null); return }
-    dispatch({
-      type: 'UPDATE_ELEMENT',
-      payload: { ...el, name: editing.name.trim(), notes: editing.notes.trim() || undefined },
-    })
-    setEditing(null)
-  }
-
-  function handleDelete(id: string) {
-    const uses = sceneCount(id)
-    const msg = uses > 0
-      ? `This element appears in ${uses} scene(s). Delete anyway?`
-      : 'Delete this element?'
-    if (!window.confirm(msg)) return
-    dispatch({ type: 'DELETE_ELEMENT', payload: id })
-    if (editing?.id === id) setEditing(null)
-  }
-
-  function handleGlobalAdd() {
-    const el: Element = {
-      id: uuidv4(),
-      category: globalAddCategory,
-      name: '',
-      notes: undefined,
-    }
-    dispatch({ type: 'ADD_ELEMENT', payload: el })
-    setShowGlobalAdd(false)
-    // open editor for the just-created element
-    setEditing({ id: el.id, name: '', notes: '' })
-  }
-
-  const q = search.toLowerCase()
+  };
 
   return (
-    <div className="flex flex-col h-full bg-gray-900">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-gray-800 border-b border-gray-700">
+    <div className="flex flex-col flex-1 min-h-0 bg-gray-900">
+      <div className="px-5 py-3 border-b border-gray-700 flex-shrink-0 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Element Manager</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
-            {allElements.length} elements across {ALL_CATEGORIES.filter(c => allElements.some(e => e.category === c)).length} categories
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {showGlobalAdd ? (
-            <div className="flex items-center gap-2">
-              <select
-                value={globalAddCategory}
-                onChange={e => setGlobalAddCategory(e.target.value as ElementCategory)}
-                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500"
-              >
-                {ALL_CATEGORIES.map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-              <button
-                onClick={handleGlobalAdd}
-                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold rounded-lg text-sm"
-              >
-                Add
-              </button>
-              <button
-                onClick={() => setShowGlobalAdd(false)}
-                className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-sm"
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setShowGlobalAdd(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold rounded-lg text-sm transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Add Element
-            </button>
-          )}
+          <h2 className="text-gray-100 font-semibold text-sm">Element Manager</h2>
+          <p className="text-gray-500 text-xs">{project.elements.length} total elements</p>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="px-6 py-3 bg-gray-800 border-b border-gray-700">
-        <div className="relative max-w-md">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search elements..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white
-              placeholder-gray-400 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
+      <div className="flex-1 overflow-y-auto p-5">
+        <div className="grid grid-cols-1 gap-3 max-w-4xl">
+          {ALL_CATEGORIES.map(category => {
+            const elements = project.elements.filter(e => e.category === category);
+            const color = ELEMENT_CATEGORY_COLORS[category] || '#9ca3af';
+            const isExpanded = expandedCategories.has(category);
 
-      {/* Category sections */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {ALL_CATEGORIES.map(cat => {
-          const catElements = allElements.filter(e => {
-            if (e.category !== cat) return false
-            if (!search) return true
-            return e.name.toLowerCase().includes(q) || (e.notes?.toLowerCase().includes(q) ?? false)
-          })
-
-          // Don't show empty categories unless we're adding to them or no search
-          const isAddingHere = adding?.category === cat
-          if (catElements.length === 0 && !isAddingHere && search) return null
-          if (catElements.length === 0 && !isAddingHere && !search) {
-            // show collapsed placeholder
-          }
-
-          const isCollapsed = collapsed.has(cat)
-          const hexColor = getCategoryBgHex(cat)
-          const twColor = getCategoryColor(cat)
-
-          return (
-            <div key={cat} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700">
-              {/* Category header */}
-              <div
-                className="flex items-center justify-between px-4 py-2.5 cursor-pointer select-none"
-                style={{ backgroundColor: hexColor + '22' }}
-                onClick={() => toggleCollapse(cat)}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: hexColor }}
-                  />
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${twColor}`}>{cat}</span>
-                  <span className="text-xs text-gray-400 font-medium">
-                    {catElements.length} element{catElements.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={e => { e.stopPropagation(); startAdding(cat) }}
-                    className="flex items-center gap-1 px-2.5 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs rounded transition-colors"
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            return (
+              <div key={category} className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden"
+                style={{ borderLeftColor: color, borderLeftWidth: '3px' }}>
+                <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-750 select-none"
+                  onClick={() => toggleCategory(category)}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                    <span className="text-sm font-semibold text-gray-200">{category}</span>
+                    <span className="text-xs text-gray-500 bg-gray-700 px-1.5 py-0.5 rounded-full">{elements.length}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={(e) => { e.stopPropagation(); setEditing({ id: null, name: '', notes: '', category }); setExpandedCategories(p => new Set([...p, category])); }}
+                      className="text-xs px-2 py-0.5 bg-gray-700 text-gray-300 rounded hover:bg-gray-600">+ Add</button>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                      className={`text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+                      <polyline points="6 9 12 15 18 9"/>
                     </svg>
-                    Add
-                  </button>
-                  <svg
-                    className={`w-4 h-4 text-gray-400 transition-transform ${isCollapsed ? '' : 'rotate-180'}`}
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  </div>
                 </div>
-              </div>
 
-              {/* Elements */}
-              {!isCollapsed && (
-                <div className="divide-y divide-gray-700/50">
-                  {/* Inline add form */}
-                  {isAddingHere && (
-                    <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-700/50">
-                      <input
-                        autoFocus
-                        type="text"
-                        placeholder="Element name..."
-                        value={adding!.name}
-                        onChange={e => setAdding(prev => prev ? { ...prev, name: e.target.value } : null)}
-                        onKeyDown={e => { if (e.key === 'Enter') commitAdd(); if (e.key === 'Escape') setAdding(null) }}
-                        className="flex-1 px-3 py-1.5 bg-gray-600 border border-gray-500 rounded text-white text-sm
-                          placeholder-gray-400 focus:outline-none focus:border-amber-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Notes (optional)"
-                        value={adding!.notes}
-                        onChange={e => setAdding(prev => prev ? { ...prev, notes: e.target.value } : null)}
-                        onKeyDown={e => { if (e.key === 'Enter') commitAdd(); if (e.key === 'Escape') setAdding(null) }}
-                        className="w-48 px-3 py-1.5 bg-gray-600 border border-gray-500 rounded text-white text-sm
-                          placeholder-gray-400 focus:outline-none focus:border-amber-500"
-                      />
-                      <button
-                        onClick={commitAdd}
-                        className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-900 text-xs font-semibold rounded transition-colors"
-                      >
-                        Add
-                      </button>
-                      <button
-                        onClick={() => setAdding(null)}
-                        className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-gray-300 text-xs rounded transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-
-                  {catElements.length === 0 && !isAddingHere && (
-                    <div className="px-4 py-3 text-xs text-gray-500 italic">
-                      No elements. Click &ldquo;Add&rdquo; to create one.
-                    </div>
-                  )}
-
-                  {catElements.map(el => {
-                    const isEditingThis = editing?.id === el.id
-                    const uses = sceneCount(el.id)
-
-                    if (isEditingThis) {
-                      return (
-                        <div key={el.id} className="flex items-center gap-2 px-4 py-2.5 bg-gray-700/60">
-                          <input
-                            autoFocus
-                            type="text"
-                            value={editing!.name}
-                            onChange={e => setEditing(prev => prev ? { ...prev, name: e.target.value } : null)}
-                            onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditing(null) }}
-                            className="flex-1 px-3 py-1.5 bg-gray-600 border border-amber-500 rounded text-white text-sm
-                              focus:outline-none"
-                          />
-                          <input
-                            type="text"
-                            placeholder="Notes"
-                            value={editing!.notes}
-                            onChange={e => setEditing(prev => prev ? { ...prev, notes: e.target.value } : null)}
-                            onKeyDown={e => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditing(null) }}
-                            className="w-48 px-3 py-1.5 bg-gray-600 border border-gray-500 rounded text-white text-sm
-                              placeholder-gray-400 focus:outline-none focus:border-amber-500"
-                          />
-                          <button
-                            onClick={commitEdit}
-                            className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-900 text-xs font-semibold rounded"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={() => setEditing(null)}
-                            className="px-2 py-1.5 text-gray-400 hover:text-white text-xs"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={() => handleDelete(el.id)}
-                            className="px-2 py-1.5 text-red-400 hover:text-red-300 text-xs"
-                          >
-                            Delete
-                          </button>
+                {isExpanded && (
+                  <div className="border-t border-gray-700 px-4 py-3 space-y-2">
+                    {elements.length === 0 && <p className="text-gray-600 text-xs italic">No elements. Click + Add to create one.</p>}
+                    {elements.map(el => (
+                      <div key={el.id} className="flex items-center justify-between rounded px-3 py-2 group hover:bg-gray-700">
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm text-gray-200">{el.name}</div>
+                          {el.notes && <div className="text-xs text-gray-500 truncate">{el.notes}</div>}
                         </div>
-                      )
-                    }
-
-                    return (
-                      <div
-                        key={el.id}
-                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-700/40 group transition-colors"
-                      >
-                        <div
-                          className="w-2 h-2 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: hexColor }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <span className="text-white text-sm font-medium">{el.name}</span>
-                          {el.notes && (
-                            <span className="ml-2 text-gray-500 text-xs">{el.notes}</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {uses > 0 && (
-                            <span className="text-xs px-2 py-0.5 bg-amber-500/15 text-amber-400 rounded-full font-medium">
-                              {uses} scene{uses !== 1 ? 's' : ''}
-                            </span>
-                          )}
-                          <button
-                            onClick={() => startEditing(el)}
-                            className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-white transition-all rounded"
-                            title="Edit"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleDelete(el.id)}
-                            className="opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:text-red-400 transition-all rounded"
-                            title="Delete"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 ml-2">
+                          <button onClick={() => setEditing({ id: el.id, name: el.name, notes: el.notes || '', category: el.category })}
+                            className="text-xs px-2 py-0.5 bg-gray-600 text-gray-300 rounded hover:bg-gray-500">Edit</button>
+                          <button onClick={() => handleDelete(el.id)}
+                            className="text-xs px-2 py-0.5 bg-red-900 text-red-300 rounded hover:bg-red-800">Del</button>
                         </div>
                       </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )
-        })}
+                    ))}
+                    {editing && editing.category === category && (
+                      <div className="bg-gray-700 rounded p-3 space-y-2">
+                        <input autoFocus placeholder="Element name" value={editing.name}
+                          onChange={e => setEditing(p => p && ({ ...p, name: e.target.value }))}
+                          className="w-full bg-gray-600 border border-gray-500 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                          onKeyDown={e => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') setEditing(null); }} />
+                        <input placeholder="Notes (optional)" value={editing.notes}
+                          onChange={e => setEditing(p => p && ({ ...p, notes: e.target.value }))}
+                          className="w-full bg-gray-600 border border-gray-500 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500" />
+                        <div className="flex gap-2">
+                          <button onClick={handleSave} className="px-3 py-1 bg-amber-500 text-gray-900 rounded text-xs font-semibold hover:bg-amber-400">Save</button>
+                          <button onClick={() => setEditing(null)} className="px-3 py-1 bg-gray-600 text-gray-300 rounded text-xs hover:bg-gray-500">Cancel</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
-  )
+  );
 }

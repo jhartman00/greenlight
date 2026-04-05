@@ -1,27 +1,46 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { SchedulingProvider } from './stores/schedulingStore';
-import { BudgetingProvider } from './stores/budgetingStore';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { SchedulingProvider, useScheduling } from './stores/schedulingStore';
+import { BudgetingProvider, useBudgeting } from './stores/budgetingStore';
 import { ToastProvider } from './components/layout/Toast';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 
-// Scheduling views
 import StripBoard from './components/scheduling/StripBoard';
 import BreakdownList from './components/scheduling/BreakdownList';
-import BreakdownSheet from './components/scheduling/BreakdownSheet';
 import ElementManager from './components/scheduling/ElementManager';
 import DayOutOfDays from './components/scheduling/DayOutOfDays';
 import CalendarView from './components/scheduling/CalendarView';
-import Reports from './components/scheduling/Reports';
+import BreakdownSheetPanel from './components/scheduling/BreakdownSheet';
 
-// Budgeting views
 import TopSheet from './components/budgeting/TopSheet';
-import AccountList from './components/budgeting/AccountList';
 import AccountDetail from './components/budgeting/AccountDetail';
 import GlobalsEditor from './components/budgeting/GlobalsEditor';
 import FringesEditor from './components/budgeting/FringesEditor';
 import ActualsTracker from './components/budgeting/ActualsTracker';
 import BudgetReports from './components/budgeting/BudgetReports';
+
+function AppInitializer({ children }: { children: React.ReactNode }) {
+  const { state: schedState, dispatch: schedDispatch } = useScheduling();
+  const { state: budgetState, dispatch: budgetDispatch } = useBudgeting();
+
+  useEffect(() => {
+    if (!schedState.project) schedDispatch({ type: 'LOAD_SAMPLE' });
+    if (!budgetState.project) budgetDispatch({ type: 'LOAD_SAMPLE' });
+  }, []);
+
+  return <>{children}</>;
+}
+
+function StripBoardView() {
+  const { state } = useScheduling();
+  return (
+    <div className="flex flex-col flex-1 min-h-0 relative">
+      <StripBoard />
+      {state.selectedBreakdownId && <BreakdownSheetPanel />}
+    </div>
+  );
+}
 
 function AppContent() {
   return (
@@ -29,22 +48,16 @@ function AppContent() {
       <Sidebar />
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-auto">
+        <main className="flex flex-1 min-h-0 overflow-hidden">
           <Routes>
             <Route path="/" element={<Navigate to="/scheduling/stripboard" replace />} />
-            <Route path="/scheduling" element={<Navigate to="/scheduling/stripboard" replace />} />
-            <Route path="/scheduling/stripboard" element={<StripBoard />} />
-            <Route path="/scheduling/breakdown" element={<BreakdownList />} />
+            <Route path="/scheduling/stripboard" element={<StripBoardView />} />
             <Route path="/scheduling/breakdowns" element={<BreakdownList />} />
-            <Route path="/scheduling/breakdown/:id" element={<BreakdownSheet />} />
             <Route path="/scheduling/elements" element={<ElementManager />} />
             <Route path="/scheduling/dood" element={<DayOutOfDays />} />
             <Route path="/scheduling/calendar" element={<CalendarView />} />
-            <Route path="/scheduling/reports" element={<Reports />} />
-            <Route path="/budgeting" element={<Navigate to="/budgeting/topsheet" replace />} />
             <Route path="/budgeting/topsheet" element={<TopSheet />} />
-            <Route path="/budgeting/accounts" element={<AccountList />} />
-            <Route path="/budgeting/account/:groupId/:accountId" element={<AccountDetail />} />
+            <Route path="/budgeting/accounts" element={<AccountDetail />} />
             <Route path="/budgeting/globals" element={<GlobalsEditor />} />
             <Route path="/budgeting/fringes" element={<FringesEditor />} />
             <Route path="/budgeting/actuals" element={<ActualsTracker />} />
@@ -58,14 +71,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <ToastProvider>
-        <SchedulingProvider>
-          <BudgetingProvider>
+    <SchedulingProvider>
+      <BudgetingProvider>
+        <ToastProvider>
+          <AppInitializer>
             <AppContent />
-          </BudgetingProvider>
-        </SchedulingProvider>
-      </ToastProvider>
-    </BrowserRouter>
+          </AppInitializer>
+        </ToastProvider>
+      </BudgetingProvider>
+    </SchedulingProvider>
   );
 }

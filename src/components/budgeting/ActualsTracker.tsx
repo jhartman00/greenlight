@@ -1,142 +1,112 @@
+import React from 'react';
 import { useBudgeting } from '../../stores/budgetingStore';
 import { formatCurrency } from '../../utils/calculations';
 
 export default function ActualsTracker() {
   const { state, dispatch } = useBudgeting();
-  const project = state.project;
 
-  if (!project) return <div className="p-6 text-gray-400">No project loaded.</div>;
+  if (!state.project) return <div className="flex-1 flex items-center justify-center text-gray-500">No project loaded.</div>;
 
+  const { project } = state;
   const sym = project.globals.currencySymbol;
 
-  const totalBudget = project.grandTotal;
-  const totalActual = project.accountGroups.reduce((sum, g) =>
-    sum + g.accounts.reduce((aSum, a) =>
-      aSum + a.lineItems.reduce((iSum, i) => iSum + (i.actualSpend ?? 0), 0), 0), 0);
-  const totalVariance = totalActual - totalBudget;
+  const handleActualChange = (accountId: string, lineItemId: string, value: number) => {
+    dispatch({ type: 'UPDATE_ACTUAL', payload: { accountId, lineItemId, actualSpend: value } });
+  };
 
-  const varClass = (v: number) => v > 0 ? 'text-red-400' : v < 0 ? 'text-green-400' : 'text-gray-400';
+  const getVarianceColor = (budget: number, actual: number): string => {
+    if (actual === 0) return 'text-gray-500';
+    const pct = ((actual - budget) / budget) * 100;
+    if (pct > 10) return 'text-red-400';
+    if (pct > 0) return 'text-yellow-400';
+    return 'text-green-400';
+  };
+
+  const totalBudget = project.grandTotal;
+  const totalActuals = project.accountGroups.reduce((sum, group) =>
+    sum + group.accounts.reduce((aSum, acct) =>
+      aSum + acct.lineItems.reduce((iSum, item) => iSum + (item.actualSpend ?? 0), 0), 0), 0);
+  const totalVariance = totalActuals - totalBudget;
 
   return (
-    <div className="flex flex-col h-full bg-gray-900">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-gray-800 border-b border-gray-700">
+    <div className="flex flex-col flex-1 min-h-0 bg-gray-900">
+      <div className="px-5 py-3 border-b border-gray-700 flex-shrink-0">
+        <h2 className="text-gray-100 font-semibold text-sm">Actuals Tracker</h2>
+        <p className="text-gray-500 text-xs">Enter actual spend per line item to track against budget</p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 px-5 py-3 bg-gray-800 border-b border-gray-700 flex-shrink-0">
+        <div><div className="text-xs text-gray-400 mb-0.5">Total Budget</div><div className="text-base font-bold text-gray-200 font-mono">{formatCurrency(totalBudget, sym)}</div></div>
+        <div><div className="text-xs text-gray-400 mb-0.5">Total Actuals</div><div className="text-base font-bold text-amber-400 font-mono">{formatCurrency(totalActuals, sym)}</div></div>
         <div>
-          <h1 className="text-xl font-bold text-white">Actuals Tracker</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Budget vs actual spend</p>
-        </div>
-        <div className="flex gap-6 text-sm">
-          <div className="text-right">
-            <div className="text-gray-400 text-xs">Budget</div>
-            <div className="text-white font-mono font-semibold">{formatCurrency(totalBudget, sym)}</div>
-          </div>
-          <div className="text-right">
-            <div className="text-gray-400 text-xs">Actual</div>
-            <div className="text-white font-mono font-semibold">{formatCurrency(totalActual, sym)}</div>
-          </div>
-          <div className="text-right">
-            <div className="text-gray-400 text-xs">Variance</div>
-            <div className={`font-mono font-semibold ${varClass(totalVariance)}`}>
-              {totalVariance > 0 ? '+' : ''}{formatCurrency(totalVariance, sym)}
-            </div>
+          <div className="text-xs text-gray-400 mb-0.5">Variance</div>
+          <div className={`text-base font-bold font-mono ${totalVariance > 0 ? 'text-red-400' : 'text-green-400'}`}>
+            {totalVariance > 0 ? '+' : ''}{formatCurrency(totalVariance, sym)}
           </div>
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div className="px-6 py-3 bg-gray-800 border-b border-gray-700">
-        <div className="flex justify-between text-xs text-gray-500 mb-1">
-          <span>{totalBudget > 0 ? ((totalActual / totalBudget) * 100).toFixed(1) : 0}% spent</span>
-          <span>{sym}{(totalBudget - totalActual).toLocaleString()} remaining</span>
-        </div>
-        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all ${totalActual > totalBudget ? 'bg-red-500' : 'bg-amber-500'}`}
-            style={{ width: `${Math.min((totalActual / Math.max(totalBudget, 1)) * 100, 100)}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Table */}
       <div className="flex-1 overflow-auto">
         <table className="w-full text-xs">
-          <thead className="sticky top-0 bg-gray-900 border-b border-gray-700 z-10">
-            <tr className="text-gray-400 font-semibold uppercase tracking-wide">
-              <th className="px-4 py-2.5 text-left">Account / Line Item</th>
-              <th className="px-4 py-2.5 text-right w-28">Budget</th>
-              <th className="px-4 py-2.5 text-right w-28">Actual</th>
-              <th className="px-4 py-2.5 text-right w-28">Variance</th>
-              <th className="px-4 py-2.5 text-center w-24">%</th>
+          <thead className="sticky top-0 bg-gray-900 z-10 border-b border-gray-700">
+            <tr className="text-gray-400 font-semibold">
+              <th className="px-4 py-2 text-left">Description</th>
+              <th className="px-4 py-2 text-right w-28">Budget</th>
+              <th className="px-4 py-2 text-right w-36">Actual Spend</th>
+              <th className="px-4 py-2 text-right w-28">Variance</th>
+              <th className="px-4 py-2 text-right w-16">%</th>
             </tr>
           </thead>
           <tbody>
             {project.accountGroups.map(group => (
-              group.accounts.map(account => {
-                const acctBudget = account.subtotal;
-                const acctActual = account.lineItems.reduce((s, i) => s + (i.actualSpend ?? 0), 0);
-                const acctVar = acctActual - acctBudget;
-                const acctPct = acctBudget > 0 ? (acctActual / acctBudget) * 100 : 0;
-
-                return [
-                  // Account row
-                  <tr key={`acct-${account.id}`} className="bg-gray-800 border-b border-gray-700">
-                    <td className="px-4 py-2 font-semibold text-gray-200">
-                      <span className="text-gray-500 mr-2">{account.code}</span>
-                      {account.name}
-                      <span className="ml-2 text-gray-500 font-normal">{account.lineItems.length} items</span>
-                    </td>
-                    <td className="px-4 py-2 text-right font-mono text-gray-300">{formatCurrency(acctBudget, sym)}</td>
-                    <td className="px-4 py-2 text-right font-mono text-gray-200">{formatCurrency(acctActual, sym)}</td>
-                    <td className={`px-4 py-2 text-right font-mono font-semibold ${varClass(acctVar)}`}>
-                      {acctVar !== 0 ? (acctVar > 0 ? '+' : '') + formatCurrency(acctVar, sym) : '—'}
-                    </td>
-                    <td className="px-4 py-2">
-                      <div className="flex items-center gap-1.5">
-                        <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${acctPct > 100 ? 'bg-red-500' : 'bg-amber-500'}`}
-                            style={{ width: `${Math.min(acctPct, 100)}%` }}
-                          />
-                        </div>
-                        <span className={`w-10 text-right ${varClass(acctVar)}`}>{acctPct.toFixed(0)}%</span>
-                      </div>
-                    </td>
-                  </tr>,
-                  // Line item rows
-                  ...account.lineItems.map(item => {
-                    const v = (item.actualSpend ?? 0) - item.total;
-                    return (
-                      <tr key={item.id} className="border-b border-gray-800/60 hover:bg-gray-800/30">
-                        <td className="pl-10 pr-4 py-1.5 text-gray-400">{item.description}</td>
-                        <td className="px-4 py-1.5 text-right font-mono text-gray-500">{formatCurrency(item.total, sym)}</td>
-                        <td className="px-4 py-1.5 text-right">
-                          <div className="inline-flex items-center gap-1">
-                            <span className="text-gray-400 mr-0.5">{sym}</span>
-                            <input
-                              type="number"
-                              value={item.actualSpend ?? ''}
-                              placeholder="0"
-                              onChange={e => dispatch({
-                                type: 'UPDATE_ACTUAL',
-                                payload: {
-                                  accountId: account.id,
-                                  lineItemId: item.id,
-                                  actualSpend: parseFloat(e.target.value) || 0,
-                                },
-                              })}
-                              className="w-24 bg-transparent border-b border-gray-600 focus:border-amber-500 outline-none text-gray-200 py-0.5 text-right focus:bg-gray-700 rounded-sm px-1"
-                            />
-                          </div>
+              <React.Fragment key={group.id}>
+                <tr className="bg-gray-800 border-t border-gray-600">
+                  <td colSpan={5} className="px-4 py-2 text-xs font-bold text-gray-300 uppercase tracking-wide">{group.code} - {group.name}</td>
+                </tr>
+                {group.accounts.map(account => {
+                  const accountActuals = account.lineItems.reduce((s, i) => s + (i.actualSpend ?? 0), 0);
+                  const accountVariance = accountActuals - account.subtotal;
+                  return (
+                    <React.Fragment key={account.id}>
+                      <tr className="bg-gray-800 border-y border-gray-700">
+                        <td className="px-4 py-2 pl-8 font-semibold text-gray-300" colSpan={2}>{account.code} - {account.name}</td>
+                        <td className="px-4 py-2 text-right font-mono font-semibold text-amber-400">{formatCurrency(accountActuals, sym)}</td>
+                        <td className={`px-4 py-2 text-right font-mono font-semibold ${getVarianceColor(account.subtotal, accountActuals)}`}>
+                          {accountActuals > 0 ? `${accountVariance > 0 ? '+' : ''}${formatCurrency(accountVariance, sym)}` : '-'}
                         </td>
-                        <td className={`px-4 py-1.5 text-right font-mono ${varClass(v)}`}>
-                          {item.actualSpend !== undefined ? (v > 0 ? '+' : '') + formatCurrency(v, sym) : '—'}
+                        <td className={`px-4 py-2 text-right ${getVarianceColor(account.subtotal, accountActuals)}`}>
+                          {accountActuals > 0 && account.subtotal > 0 ? `${((accountActuals / account.subtotal) * 100).toFixed(0)}%` : '-'}
                         </td>
-                        <td className="px-4 py-1.5" />
                       </tr>
-                    );
-                  })
-                ];
-              })
+                      {account.lineItems.map(item => {
+                        const actual = item.actualSpend ?? 0;
+                        const variance = actual - item.total;
+                        const pct = item.total > 0 ? ((actual / item.total) * 100).toFixed(0) : '0';
+                        return (
+                          <tr key={item.id} className="border-b border-gray-800 hover:bg-gray-800">
+                            <td className="px-4 py-1.5 pl-12 text-gray-400">{item.description}</td>
+                            <td className="px-4 py-1.5 text-right font-mono text-gray-500">{formatCurrency(item.total, sym)}</td>
+                            <td className="px-4 py-1.5 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <span className="text-gray-500 text-xs">{sym}</span>
+                                <input type="number" value={actual || ''} placeholder="0"
+                                  onChange={e => handleActualChange(account.id, item.id, parseFloat(e.target.value) || 0)}
+                                  className="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-0.5 text-right text-gray-100 focus:outline-none focus:border-amber-500" />
+                              </div>
+                            </td>
+                            <td className={`px-4 py-1.5 text-right font-mono ${actual > 0 ? getVarianceColor(item.total, actual) : 'text-gray-600'}`}>
+                              {actual > 0 ? `${variance > 0 ? '+' : ''}${formatCurrency(variance, sym)}` : '-'}
+                            </td>
+                            <td className={`px-4 py-1.5 text-right ${actual > 0 ? getVarianceColor(item.total, actual) : 'text-gray-600'}`}>
+                              {actual > 0 ? `${pct}%` : '-'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
