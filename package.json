@@ -7,7 +7,18 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --config jest.config.ts",
+    "test:e2e": "playwright test",
+    "test:all": "node --experimental-vm-modules node_modules/.bin/jest --config jest.config.ts && playwright test"
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node",
+    "compilerOptions": {
+      "module": "ESNext",
+      "moduleResolution": "node"
+    }
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
