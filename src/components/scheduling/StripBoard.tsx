@@ -171,10 +171,8 @@ export default function StripBoard() {
         <div className="w-10 flex-shrink-0 px-1 text-center">Sc#</div>
         <div className="w-16 flex-shrink-0 px-1 text-center">INT/EXT</div>
         <div className="w-12 flex-shrink-0 px-1 text-center">D/N</div>
-        <div className="w-36 flex-shrink-0 px-1">Set / Location</div>
-        <div className="flex-1 min-w-0 px-1">Description</div>
+        <div className="flex-1 min-w-0 px-1">Set / Location</div>
         <div className="w-12 flex-shrink-0 px-1 text-center">Pages</div>
-        <div className="w-20 flex-shrink-0 px-1">Cast</div>
       </div>
 
       {/* Strip list */}
