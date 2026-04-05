@@ -166,19 +166,19 @@ export default function StripBoard() {
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-gray-800 overflow-x-auto">
       {/* Column headers */}
-      <div className="flex items-center h-8 bg-gray-900 border-b border-gray-600 text-xs text-gray-400 font-semibold flex-shrink-0 min-w-[600px]">
+      <div className="flex items-center h-8 bg-gray-900 border-b border-gray-600 text-xs text-gray-400 font-semibold flex-shrink-0 min-w-[1100px]">
         <div className="w-6 flex-shrink-0" />
         <div className="w-10 flex-shrink-0 px-1 text-center">Sc#</div>
         <div className="w-16 flex-shrink-0 px-1 text-center">INT/EXT</div>
         <div className="w-12 flex-shrink-0 px-1 text-center">D/N</div>
-        <div className="flex-1 px-1">Set / Location</div>
-        <div className="flex-1 px-1">Description</div>
+        <div className="w-56 flex-shrink-0 px-1">Set / Location</div>
+        <div className="flex-1 min-w-[300px] px-1">Description</div>
         <div className="w-12 flex-shrink-0 px-1 text-center">Pages</div>
         <div className="w-20 flex-shrink-0 px-1">Cast</div>
       </div>
 
       {/* Strip list */}
-      <div className="flex-1 overflow-y-auto min-w-[600px]">
+      <div className="flex-1 overflow-y-auto min-w-[1100px]">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={ids} strategy={verticalListSortingStrategy}>
             {stripBoard.map((item, index) => {
@@ -227,7 +227,7 @@ export default function StripBoard() {
       </div>
 
       {/* Summary bar */}
-      <div className="h-8 bg-gray-900 border-t border-gray-700 flex items-center px-4 gap-6 text-xs text-gray-400 flex-shrink-0 min-w-[600px]">
+      <div className="h-8 bg-gray-900 border-t border-gray-700 flex items-center px-4 gap-6 text-xs text-gray-400 flex-shrink-0 min-w-[1100px]">
         <span>Total Scenes: <span className="text-gray-200 font-semibold">{sceneItems.length}</span></span>
         <span>Total Pages: <span className="text-gray-200 font-semibold">{totalPages.toFixed(2)}</span></span>
         <span>Total Days: <span className="text-gray-200 font-semibold">{totalDays}</span></span>
