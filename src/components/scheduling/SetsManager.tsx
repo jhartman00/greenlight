@@ -154,7 +154,7 @@ export default function SetsManager() {
                           <span>📍 {set.location}</span>
                           {linked.length > 0 && <span>🎬 Scenes: {linked.join(', ')}</span>}
                           <span>Est. ${set.estimatedCost.toLocaleString()}</span>
-                          {set.actualCost !== undefined && <span>Actual: ${set.actualCost.toLocaleString()}</span>}
+                          {set.actualCost != null && <span>Actual: ${set.actualCost.toLocaleString()}</span>}
                           {set.sqFootage && <span>{set.sqFootage} sq ft</span>}
                         </div>
                         {set.buildDate && (
@@ -339,10 +339,10 @@ function BudgetSummary({ sets, totalEstimated, totalActual }: { sets: Production
                 </td>
                 <td className="px-3 py-2 text-right font-mono text-gray-300">${set.estimatedCost.toLocaleString()}</td>
                 <td className="px-3 py-2 text-right font-mono text-gray-300">
-                  {set.actualCost !== undefined ? `$${set.actualCost.toLocaleString()}` : '—'}
+                  {set.actualCost != null ? `$${set.actualCost.toLocaleString()}` : '—'}
                 </td>
-                <td className={`px-3 py-2 text-right font-mono ${set.actualCost !== undefined ? (v > 0 ? 'text-red-400' : 'text-green-400') : 'text-gray-600'}`}>
-                  {set.actualCost !== undefined ? `${v >= 0 ? '+' : ''}$${v.toLocaleString()}` : '—'}
+                <td className={`px-3 py-2 text-right font-mono ${set.actualCost != null ? (v > 0 ? 'text-red-400' : 'text-green-400') : 'text-gray-600'}`}>
+                  {set.actualCost != null ? `${v >= 0 ? '+' : ''}$${v.toLocaleString()}` : '—'}
                 </td>
               </tr>
             );
